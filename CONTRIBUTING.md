@@ -1,6 +1,6 @@
 # Cómo contribuir
 
-Las correcciones y ampliaciones deben ayudar a que otra persona pueda seguir el análisis y comprobar sus resultados.
+Las correcciones deben explicar el cambio y añadir la fuente o la prueba que lo respalda.
 
 Al proponer un cambio:
 

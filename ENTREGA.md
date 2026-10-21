@@ -4,15 +4,15 @@
 
 **Actividad:** El Arsenal de un Analista. Módulo 6, Vulnerabilidades.
 
-El trabajo reúne una guía práctica de IDA Free, Immunity Debugger, mona y Python a partir del [laboratorio de CVE-2025-5548](https://github.com/jonbondani/CVE-2025-5548). El objetivo es explicar cómo se combinan estas herramientas al analizar un fallo de memoria, cómo se interpretan sus resultados y qué información conviene conservar para documentar el trabajo.
+Este trabajo utiliza el [laboratorio de CVE-2025-5548](https://github.com/jonbondani/CVE-2025-5548) para explicar el uso de IDA Free, Immunity Debugger, mona y Python. Se recogen los pasos del análisis, los resultados y las limitaciones de cada herramienta.
 
-La documentación está en castellano y utiliza Markdown, diagramas Mermaid, capturas del laboratorio y ejemplos locales. La publicación se realiza manualmente en GitHub y la URL se comunica al presentar la actividad.
+La entrega incluye documentación Markdown, diagramas Mermaid, capturas del laboratorio y ejemplos locales. El enunciado pide publicarla en GitHub y enviar la URL.
 
 ## Relación con el enunciado
 
 Las páginas 4 a 6 de *Modulo6_TareaColaborativa.pdf* plantean la creación de un recurso técnico útil para otros analistas. Se pide aplicar una o varias herramientas, integrarlas en una metodología y explicar sus posibilidades y limitaciones. Entre los formatos sugeridos aparecen las cheatsheets, los flujos visuales y las guías de operación.
 
-El recurso combina esos tres formatos. La organización permite leer el caso completo o acudir directamente a una ficha para consultar una operación concreta.
+El repo incluye los tres formatos: cheatsheets, diagramas y guía de operación.
 
 La página 5 orienta el trabajo al portfolio profesional y establece su publicación en un proyecto público de GitHub. La página 6 recomienda Markdown, admite castellano o inglés y permite trabajo individual o grupal. También indica que las variaciones del enunciado deben validarse previamente y que esta actividad representa un 20 % de la nota final del módulo.
 
@@ -29,13 +29,11 @@ La página 5 orienta el trabajo al portfolio profesional y establece su publicac
 | Documentación reutilizable | [Ficha de sesión](plantillas/sesion.md) y [plantilla de informe](plantillas/informe.md) |
 | Publicación y envío de la URL | [Guía de publicación](docs/10-publicacion.md) |
 
-Esta relación sirve para localizar el contenido. El enunciado no reparte puntos por apartado, por lo que la tabla no representa una rúbrica de calificación.
-
 ## Desarrollo del trabajo
 
 El punto de partida es el análisis de FreeFloat ya recogido en el repositorio. A partir de sus capturas se explican tareas habituales: seguir referencias en IDA, interpretar EIP y ESP, localizar una secuencia con mona y comparar bytes desde una dirección bien identificada.
 
-El caso también permite revisar errores de interpretación. La copia observada en la rama de `USER` no basta para explicar el fallo asociado a `NOOP`; el offset 246 necesita un origen; y el resultado `Unmodified` solo se aplica a la referencia comparada. Estas precisiones forman parte de la explicación técnica.
+También se revisan varias interpretaciones del caso. La copia observada en la rama de `USER` no basta para explicar el fallo asociado a `NOOP`; el offset 246 necesita un origen; y el resultado `Unmodified` solo se aplica a la referencia comparada.
 
 Los ejercicios de Python se centran en orden de bytes, comparación e integridad. Utilizan datos sintéticos y pueden ejecutarse sin el servidor vulnerable. Sus resultados están registrados aparte para no mezclarlos con las pruebas del laboratorio original.
 
@@ -43,7 +41,7 @@ Los ejercicios de Python se centran en orden de bytes, comparación e integridad
 
 Se revisaron la documentación y las capturas del repositorio. También se ejecutaron los ejemplos locales y se comprobaron enlaces, hashes y contenido del ZIP.
 
-La ejecución de FreeFloat no se repitió durante la elaboración de esta guía. El recurso conserva esa diferencia y no presenta como terminadas las comprobaciones que faltan en el caso original.
+FreeFloat no se ha vuelto a ejecutar para preparar esta guía. Las comprobaciones que faltan se indican en el caso práctico.
 
 ## Revisión antes del envío
 

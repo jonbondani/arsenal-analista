@@ -2,11 +2,11 @@
 
 ## Análisis de un buffer overflow con IDA Free, Immunity Debugger, mona y Python
 
-Este repositorio reúne apuntes, guías y ejemplos para trabajar con un fallo de memoria y documentar los resultados con claridad. Parte del [laboratorio de FreeFloat FTP Server 1.0](https://github.com/jonbondani/CVE-2025-5548), relacionado con CVE-2025-5548, y desarrolla el uso conjunto de IDA Free, Immunity Debugger, mona y Python.
+Este repo recoge el análisis de un buffer overflow en [FreeFloat FTP Server 1.0](https://github.com/jonbondani/CVE-2025-5548), relacionado con CVE-2025-5548, utilizando IDA Free, Immunity Debugger, mona y Python.
 
-La idea es que puedas seguir el análisis, entender lo que aporta cada herramienta y consultar los pasos cuando necesites volver a utilizarlos. Además del caso práctico, encontrarás errores habituales, alternativas y pequeños ejercicios que funcionan sin instalar el servidor vulnerable.
+Lo que se busca es que cualquiera pueda seguir el análisis, entender cómo funciona cada herramienta y revisar los pasos utilizados en el laboratorio.
 
-El recurso corresponde a la actividad **El Arsenal de un Analista**, del Módulo 6 de Vulnerabilidades. Está escrito en español y pensado como material de consulta para otros analistas.
+Este repo corresponde a la actividad **El Arsenal de un Analista**, del Módulo 6 de Vulnerabilidades.
 
 ## Contenido
 
@@ -24,11 +24,11 @@ Las cheatsheets están separadas por herramienta: [IDA Free](cheatsheets/ida-fre
 
 ## El caso de FreeFloat
 
-La documentación original permite seguir el análisis de un servidor FTP para Windows, desde la revisión del binario hasta la interpretación de registros y memoria. Las capturas muestran una copia en pseudocódigo, una coincidencia de patrón en la posición 246, EIP con un marcador reconocible, una comparación de bytes y una detención en `INT3`.
+El laboratorio original recoge los pasos desde la revisión del binario hasta el análisis de registros y memoria. Las capturas muestran una copia en pseudocódigo, una coincidencia de patrón en la posición 246, EIP con un marcador reconocible, una comparación de bytes y una detención en `INT3`.
 
-Cada resultado necesita su contexto. El offset depende del origen del patrón; una tabla sin cambios solo valida los bytes que se compararon; y una dirección vista en una sesión puede cambiar en otra. El [caso práctico](docs/03-caso-practico.md) explica estos detalles y revisa algunas diferencias entre el relato y las capturas.
+El offset se cuenta desde el inicio del patrón, la comparación solo valida los bytes incluidos y las direcciones pueden cambiar entre sesiones. El [caso práctico](docs/03-caso-practico.md) explica estos detalles y revisa algunas diferencias entre el relato y las capturas.
 
-Las imágenes proceden de una versión concreta del repositorio y conservan sus bytes originales. El [registro de evidencias](evidencias/README.md) recoge su procedencia y los datos que se pueden leer en ellas.
+Las capturas originales y sus referencias están en el [registro de evidencias](evidencias/README.md).
 
 ## Forma de trabajo
 
@@ -42,13 +42,13 @@ flowchart LR
     F --> G[Documentar resultados y límites]
 ```
 
-IDA ayuda a localizar el código que procesa una entrada. El depurador permite ver el estado del proceso. mona facilita la búsqueda de patrones y la comparación de memoria. Python sirve para comprobar representaciones y archivos. La metodología une esas tareas para que el resultado pueda seguirse sin depender de la memoria de quien hizo la prueba.
+Con IDA se localiza el código que procesa la entrada. En Immunity se revisan los registros y la memoria, y con mona se buscan patrones y se comparan los bytes. Python se utiliza para comprobar el orden de esos bytes y los archivos guardados.
 
 ## Primeros pasos
 
-Para consultar el caso, empieza por la [guía de operación](docs/01-guia-operacion.md) y continúa con el [análisis de FreeFloat](docs/03-caso-practico.md).
+El análisis está explicado en la [guía de operación](docs/01-guia-operacion.md) y en el [caso de FreeFloat](docs/03-caso-practico.md).
 
-Para practicar directamente, basta con Python 3.10 o posterior. Desde la raíz del repositorio:
+Los ejemplos locales necesitan Python 3.10 o posterior. Se ejecutan desde la raíz del repo:
 
 ```console
 python3 herramientas/auditoria_local.py demo
@@ -60,9 +60,9 @@ Los archivos del último comando tienen una diferencia introducida a propósito.
 
 ## Alcance
 
-La guía revisa el laboratorio ya documentado. Las comprobaciones nuevas corresponden a los ejemplos locales de Python, que utilizan datos sintéticos. No se ha repetido la ejecución de FreeFloat para elaborar este recurso ni se presenta un exploit final validado.
+Este trabajo parte de las pruebas documentadas en el laboratorio original. Para preparar la guía no se ha vuelto a ejecutar FreeFloat. Las pruebas nuevas son las de los ejemplos locales de Python, que usan datos sintéticos. El exploit final no está validado.
 
-El repositorio no incluye el binario vulnerable, shellcode, credenciales ni scripts que envíen entradas de explotación. Las alternativas de herramientas se comentan como opciones para otros análisis, sin atribuirles pruebas que no se han hecho.
+El repo no incluye el binario vulnerable, shellcode, credenciales ni scripts de explotación. Las herramientas alternativas se comparan a partir de su documentación; no se ha repetido el laboratorio con ellas.
 
 ## Entrega y reutilización
 

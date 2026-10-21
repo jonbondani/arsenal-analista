@@ -1,6 +1,6 @@
 # Plantilla de informe técnico
 
-Utiliza estos apartados para presentar el análisis y enlazar sus evidencias. Indica desde el principio si el trabajo corresponde a una revisión de documentación, una ejecución propia o ejercicios sintéticos.
+Recoge los pasos del análisis y sus archivos de referencia. Indica si se ha trabajado con documentación, con una ejecución propia o con datos sintéticos.
 
 ## Resumen
 

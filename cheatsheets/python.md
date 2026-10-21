@@ -2,7 +2,7 @@
 
 [Índice](../README.md) · [Tutorial](../docs/04-tutorial-local.md)
 
-Python resulta útil para revisar representaciones, comparar datos y conservar la identidad de los archivos. Los ejemplos de esta ficha trabajan en local y utilizan valores sintéticos.
+Con Python se comprueba el orden de bytes, se comparan datos y se calculan hashes. Los ejemplos usan valores sintéticos y se ejecutan en local.
 
 ## Convertir un entero a bytes
 

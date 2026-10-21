@@ -2,7 +2,7 @@
 
 [Índice](../README.md) · [Caso práctico](../docs/03-caso-practico.md)
 
-IDA permite estudiar las funciones y seguir el recorrido de un dato por el binario. En el caso de FreeFloat se utiliza para localizar cadenas FTP, seguir sus referencias y revisar las operaciones de copia.
+Con IDA se localizan las cadenas FTP y se siguen sus referencias hasta el código que las utiliza. En FreeFloat, este recorrido lleva a las operaciones de copia que se revisan en el caso práctico.
 
 ## Operaciones habituales
 

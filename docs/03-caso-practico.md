@@ -6,9 +6,9 @@
 
 El caso utiliza la documentación de [jonbondani/CVE-2025-5548](https://github.com/jonbondani/CVE-2025-5548), en el commit [`6c302ee05599ce34dae0892f8678bed802879dab`](https://github.com/jonbondani/CVE-2025-5548/tree/6c302ee05599ce34dae0892f8678bed802879dab), del 20 de octubre de 2026. La [ficha de NVD](https://nvd.nist.gov/vuln/detail/CVE-2025-5548) relaciona FreeFloat FTP Server 1.0 con un buffer overflow asociado a `NOOP`.
 
-La guía revisa las capturas y el relato de ese laboratorio. No se ha repetido la ejecución del servidor al elaborar esta documentación. Las comprobaciones locales de Python se explican en otro apartado y utilizan datos sintéticos.
+Aquí se revisan las capturas y los pasos documentados en ese laboratorio. El servidor no se ha vuelto a ejecutar para preparar la guía. Los ejemplos de Python usan datos sintéticos y se explican por separado.
 
-El [registro de evidencias](../evidencias/README.md) recoge la procedencia de cada imagen. Los archivos se conservaron sin editar y se comprobaron contra el commit citado.
+Las capturas están sin editar y se comprobaron contra el commit citado. Su procedencia está en el [registro de evidencias](../evidencias/README.md).
 
 ## Entorno
 
@@ -22,7 +22,7 @@ El análisis original sigue cadenas del protocolo y sus referencias hasta `sub_4
 
 ![E01: copia localizada en el pseudocódigo de IDA](../evidencias/capturas/E01-ida-copia.png)
 
-La llamada merece revisarse porque no recibe la capacidad del destino. Para determinar si esa copia puede escribir fuera de sus límites hay que reconstruir el origen del dato, la capacidad real del destino y las validaciones anteriores.
+`strcpy` no recibe el tamaño del destino. Para determinar si esa copia puede escribir fuera de sus límites hay que reconstruir el origen del dato, la capacidad real del destino y las validaciones anteriores.
 
 La expresión `this + 28` tampoco permite afirmar por sí sola que el destino sea una variable local en la pila. Hay que seguir la asignación del objeto y sus llamadores, y contrastar los tipos del pseudocódigo con las instrucciones.
 
@@ -38,7 +38,7 @@ E03 muestra EIP con el valor `42424242`, compatible con el marcador `BBBB` descr
 
 ![E03: EIP con el valor 42424242](../evidencias/capturas/E03-eip-marcador.png)
 
-La imagen encaja con una influencia de la entrada sobre EIP en esa sesión. Para reconstruir la relación completa también harían falta la entrada exacta, la excepción, el hilo y el estado anterior a la transferencia.
+El valor de EIP coincide con el marcador descrito en la prueba. Para reconstruir la relación completa también harían falta la entrada exacta, la excepción, el hilo y el estado anterior a la transferencia.
 
 Además, un marcador reconocible no demuestra que cualquier valor de cuatro bytes llegue igual. El protocolo o las funciones de cadena pueden tratar algunos valores de forma distinta. La ejecución de órdenes, los privilegios y la repetibilidad requieren evidencias adicionales.
 
@@ -84,7 +84,7 @@ E06 muestra EIP sobre una posición que se decodifica como `INT3`.
 
 ![E06: EIP sobre una instrucción INT3](../evidencias/capturas/E06-int3.png)
 
-La captura es compatible con la detención descrita en el laboratorio. Aun así, no muestra todos los pasos anteriores ni permite medir la estabilidad entre reinicios. También conviene registrar si la interrupción estaba en el dato de prueba o si la insertó el depurador.
+La captura muestra la detención descrita en el laboratorio, pero no los pasos anteriores ni lo que ocurre después de reiniciar. También conviene registrar si la interrupción estaba en el dato de prueba o si la insertó el depurador.
 
 Una secuencia de opcodes encontrada en memoria necesita más contexto: módulo, base, RVA, versión, modo de ejecución y permisos de la página. Encontrarla una vez no garantiza que la misma dirección sirva en otra sesión.
 
@@ -98,7 +98,7 @@ Para ampliar esa parte del laboratorio se necesitarían sesiones identificadas, 
 
 ## Resultado de la revisión
 
-Las capturas permiten estudiar una copia candidata en IDA, una coincidencia de patrón, EIP con un marcador, una comparación de memoria y una detención compatible con `INT3`.
+En las capturas aparecen la copia localizada en IDA, el offset del patrón, el marcador en EIP, la comparación de memoria y la detención en `INT3`.
 
 La explicación completa de la ruta `NOOP`, la reproducción exacta y la estabilidad de las direcciones necesitan más información. El README original utiliza la etiqueta “Finalizado”, aunque los apartados de shellcode y exploit final siguen pendientes en la versión consultada. Esa etiqueta describe el estado editorial del repositorio y no añade resultados técnicos.
 
@@ -114,4 +114,4 @@ Las siguientes comprobaciones permitirían completar el registro del laboratorio
 - **Resolver las direcciones:** relacionar una representación coherente con módulo, base y RVA.
 - **Comprobar repetibilidad:** repetir en sesiones independientes y registrar los cambios tras reiniciar.
 
-Son ampliaciones del caso original. El tutorial de Python puede seguirse con los archivos incluidos, sin completar estas pruebas.
+Estas comprobaciones siguen por completar. Los ejercicios de Python se pueden ejecutar con los archivos incluidos.

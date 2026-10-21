@@ -4,11 +4,11 @@
 
 ## Información disponible
 
-El recurso parte de la documentación y las capturas del laboratorio. La revisión permite explicar resultados y señalar los datos necesarios para repetirlos, pero no sustituye una sesión con el binario original.
+Se trabaja con la documentación y las capturas del laboratorio. Para repetir las pruebas harían falta el binario original y los datos del entorno.
 
 En el material consultado faltan el hash del ejecutable, el inventario completo de herramientas y parte del contexto de las detenciones. Tampoco se conservan aquí las entradas exactas de todas las pruebas. Por eso la relación entre el dato enviado y el estado del proceso se apoya en el relato y las imágenes disponibles.
 
-Las pruebas nuevas registradas en el repositorio corresponden a la utilidad local de Python. Utilizan datos sintéticos y están separadas de las evidencias de FreeFloat.
+Las pruebas nuevas son las de Python. Usan datos sintéticos y se registran aparte de las capturas de FreeFloat.
 
 ## Límites del caso
 
@@ -46,4 +46,4 @@ El contenido se limita a un fallo ya público, sus evidencias y ejercicios local
 
 Las capturas mantienen su atribución. Los derechos y condiciones de reutilización se describen en el [aviso de uso](../AVISO-DE-USO.md).
 
-Si se añade una prueba, conviene registrar fecha, sesión, archivos y resultado. Una limitación se puede dar por resuelta cuando se incorpora la evidencia correspondiente. Así se conserva la continuidad entre la documentación original y las ampliaciones posteriores.
+Si se añade una prueba, conviene registrar fecha, sesión, archivos y resultado. Una limitación se puede dar por resuelta cuando se incorpora la evidencia correspondiente. Así queda claro qué resultado pertenece a cada prueba.

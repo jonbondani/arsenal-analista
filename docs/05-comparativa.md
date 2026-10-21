@@ -2,7 +2,7 @@
 
 [Volver al índice](../README.md)
 
-Cada herramienta cubre una parte del trabajo. La elección depende del tipo de muestra, la arquitectura, las condiciones de uso y el resultado que se necesita guardar. Esta comparación se apoya en funciones documentadas y en el papel que tienen dentro del caso. No incluye mediciones de rendimiento.
+La elección de herramientas depende de la muestra, la arquitectura y el análisis. Aquí se compara su uso en el caso con las funciones descritas en la documentación oficial. No se han medido tiempos ni rendimiento.
 
 ## Herramientas utilizadas en el laboratorio
 
@@ -27,7 +27,7 @@ Las capacidades se pueden consultar en las páginas oficiales de [IDA Free](http
 
 ## Elegir según el trabajo
 
-Para revisar las capturas existentes resulta cómodo mantener los nombres y las herramientas del laboratorio. Permite seguir el relato sin añadir las diferencias de una migración.
+Para seguir las capturas se mantienen las herramientas del laboratorio original. Un cambio de depurador o plugin necesita sus propias comprobaciones.
 
 Para un análisis nuevo conviene elegir primero la arquitectura y el objetivo. Un proceso x64 necesita revisar las herramientas y los supuestos sobre registros y tamaños. Los valores de EIP y el offset del caso x86 no se trasladan directamente.
 
@@ -35,7 +35,7 @@ Si el binario es confidencial, hay que revisar el tratamiento de datos y las con
 
 ## Instalación y mantenimiento
 
-Además de las funciones, interesa el tiempo necesario para preparar el entorno: cuentas, licencias, intérpretes, plugins, VM y documentación. Un conjunto de herramientas deja de ser cómodo si nadie puede reconstruir sus dependencias.
+Al preparar el entorno también hay que contar con cuentas, licencias, intérpretes, plugins y VM. Sus versiones y dependencias deben quedar anotadas para poder volver a montarlo.
 
 Para mantener un caso histórico suele ser útil conservar las versiones con las que se generaron las evidencias. Si se prepara un entorno nuevo, una prueba pequeña de compatibilidad ayuda a decidir si conviene actualizarlo.
 

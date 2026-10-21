@@ -1,6 +1,6 @@
 # Uso del material
 
-El repositorio estudia un fallo ya público y utiliza ejercicios locales para practicar la revisión de datos. Las utilidades incluidas no se conectan al servicio vulnerable.
+El caso trata un fallo ya público. Los scripts incluidos se ejecutan en local y no se conectan al servidor vulnerable.
 
 Las sesiones con el servidor requieren autorización y un entorno aislado. Conviene registrar la red efectiva de la VM y comprobar que el servicio no queda expuesto a Internet.
 

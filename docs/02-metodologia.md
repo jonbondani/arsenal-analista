@@ -2,7 +2,7 @@
 
 [Volver al índice](../README.md)
 
-El trabajo combina una revisión estática del código con el estado que muestra el depurador. Los patrones, las comparaciones de memoria y las comprobaciones locales ayudan a relacionar ambos, siempre dentro de una sesión identificada.
+El análisis empieza en IDA y continúa con los registros y la memoria del depurador. Después se contrastan los patrones y los bytes con mona. Los archivos de cada prueba se guardan con su sesión.
 
 ## Flujo de trabajo
 
@@ -26,7 +26,7 @@ flowchart TD
 
 Registra la muestra, su origen, hash y arquitectura. Añade las versiones del sistema y las herramientas, el snapshot y el objetivo de la sesión. Si se trabaja solo con capturas, deja constancia de esa condición: una imagen permite revisar un resultado, pero no recuperar todo el estado del proceso.
 
-La salida de esta fase es una [ficha de sesión](../plantillas/sesion.md) que identifique los archivos y el entorno. Los datos que no estén disponibles deben quedar señalados.
+La [ficha de sesión](../plantillas/sesion.md) recoge los archivos y el entorno. Si falta algún dato, se deja indicado.
 
 ## Revisión estática
 
@@ -46,7 +46,7 @@ La información mínima incluye proceso, hilo, excepción, registros, instrucci�
 
 mona ayuda a localizar una secuencia en un patrón y a comparar bytes con una referencia. Antes de interpretar el resultado, comprueba el archivo de referencia, la longitud y la dirección del primer byte. ESP puede apuntar al interior del dato.
 
-Python permite revisar el orden de bytes y comprobar que los archivos utilizados siguen siendo los mismos. El hash identifica un archivo; la comparación local señala diferencias. La elección de la referencia y su relación con la sesión siguen siendo responsabilidad del análisis.
+Con Python se comprueba el orden de bytes, se comparan archivos y se calculan sus hashes. Antes hay que confirmar que los archivos corresponden a la misma prueba.
 
 ## Relación entre estático y dinámico
 
@@ -69,7 +69,7 @@ sequenceDiagram
 
 ## Alcance de las conclusiones
 
-Hay varios niveles de información que conviene distinguir:
+Los resultados se interpretan según lo que se haya podido comprobar:
 
 1. El servicio deja de responder. Todavía hay que separar un problema de red, una pausa y una excepción.
 2. El depurador registra una detención. Ya existe un estado que estudiar, aunque su causa puede necesitar más contexto.
@@ -77,7 +77,7 @@ Hay varios niveles de información que conviene distinguir:
 4. Un patrón sitúa el dato en una posición concreta. El offset queda referido al inicio de ese patrón y a esa prueba.
 5. Se observa una redirección o una interrupción esperada. La estabilidad entre sesiones y las mitigaciones requieren comprobaciones adicionales.
 
-La documentación debe indicar hasta qué nivel llega la evidencia. El caso incluido permite revisar resultados históricos; los ejemplos locales tienen un registro independiente.
+En el informe se indica qué se ha comprobado. Las capturas del laboratorio y los ejemplos locales se registran por separado.
 
 ## Cierre
 

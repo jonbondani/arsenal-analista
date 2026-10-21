@@ -38,6 +38,6 @@ Las alternativas se incluyen como orientación. Su presencia en las referencias 
 
 ## Identificación de los resultados
 
-En el recurso se distingue entre los datos visibles en una captura, las descripciones del laboratorio original y las interpretaciones que se explican a partir de ellos. Las comprobaciones por completar se señalan en el caso práctico. Los ejercicios sintéticos tienen sus propios archivos y resultados en la carpeta `ejemplos`.
+Las explicaciones indican qué se ve en las capturas y qué se toma de la documentación original. Las comprobaciones por completar se señalan en el caso práctico. Los ejercicios sintéticos tienen sus propios archivos y resultados en la carpeta `ejemplos`.
 
-Para citar una versión publicada, utiliza autoría, título, fecha, URL del repositorio y commit. Así la referencia permite recuperar los mismos archivos.
+Para citar una versión publicada, utiliza autoría, título, fecha, URL del repositorio y commit. El commit identifica los archivos de esa versión.

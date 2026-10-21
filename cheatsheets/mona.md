@@ -2,7 +2,7 @@
 
 [Índice](../README.md) · [Evidencias](../evidencias/README.md)
 
-Esta ficha recoge las órdenes de mona clásico que aparecen en la revisión de patrones y memoria. El proyecto [corelan/mona](https://github.com/corelan/mona) está archivado y remite a [mona3](https://github.com/corelan/mona3). Antes de usar otro entorno, revisa sus requisitos y ayuda: la compatibilidad de hosts y comandos puede cambiar.
+Estos son los comandos de mona clásico utilizados para revisar los patrones y la memoria del caso. El proyecto [corelan/mona](https://github.com/corelan/mona) está archivado y remite a [mona3](https://github.com/corelan/mona3). Antes de usar otro entorno, revisa sus requisitos y ayuda: la compatibilidad de hosts y comandos puede cambiar.
 
 ## Separar los archivos de una sesión
 

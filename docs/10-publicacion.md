@@ -2,13 +2,13 @@
 
 [Volver al índice](../README.md)
 
-El recurso está organizado para subir el contenido de su carpeta a un repositorio. La publicación se realiza manualmente; los archivos locales no indican si ya existe una versión pública.
+Para publicar el repo, hay que subir el contenido de la carpeta y mantener su estructura.
 
 ## Preparar el repositorio
 
 El nombre `el-arsenal-de-un-analista` encaja con la actividad. El README debe quedar en la raíz, junto a `ENTREGA.md`, las carpetas de documentación, las capturas y los ejemplos.
 
-Se puede publicar como proyecto independiente y enlazar el laboratorio original. Si se integra dentro del repositorio de FreeFloat, conviene utilizar una carpeta propia y enlazarla desde su portada para conservar la documentación existente.
+Se puede crear un repo independiente y enlazar el laboratorio original. Si se integra dentro del repositorio de FreeFloat, conviene utilizar una carpeta propia y enlazarla desde su portada para conservar la documentación existente.
 
 ## Subir los archivos
 
