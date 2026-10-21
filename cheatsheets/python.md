@@ -1,21 +1,25 @@
-# Cheatsheet comentada: Python para revisar datos
+# Cheatsheet de Python
 
 [Índice](../README.md) · [Tutorial](../docs/04-tutorial-local.md)
 
-**Uso en esta entrega:** comprobaciones locales de representación, integridad y diferencias. No hay funciones de red, ejecución del binario ni construcción de un exploit.
+Python resulta útil para revisar representaciones, comparar datos y conservar la identidad de los archivos. Los ejemplos de esta ficha trabajan en local y utilizan valores sintéticos.
 
-## Separar enteros, texto y bytes
+## Convertir un entero a bytes
 
 ```python
 import struct
 
-valor_sintetico = 0x12345678
-representacion = struct.pack("<I", valor_sintetico)
-print(representacion.hex())  # 78563412
-print(struct.unpack("<I", representacion)[0] == valor_sintetico)  # True
+valor = 0x12345678
+datos = struct.pack("<I", valor)
+print(datos.hex())  # 78563412
+print(struct.unpack("<I", datos)[0] == valor)  # True
 ```
 
-`<` fija little-endian; `I` fija un entero sin signo de cuatro bytes en este formato. Evitar el orden nativo implícito si los datos pertenecen a una arquitectura concreta. El número es sintético y no representa una dirección del caso. Fuente: [documentación oficial de struct](https://docs.python.org/3/library/struct.html).
+El prefijo `<` fija little-endian y `I` representa un entero sin signo de cuatro bytes en ese formato. Es preferible indicar el orden de forma explícita cuando se trabaja con datos de una arquitectura concreta.
+
+El entero del ejemplo es arbitrario y no corresponde a una dirección del laboratorio. La [documentación de struct](https://docs.python.org/3/library/struct.html) explica los formatos y tamaños.
+
+## Separar texto hexadecimal y bytes
 
 ```python
 texto = "41 42 43"
@@ -23,9 +27,9 @@ datos = bytes.fromhex(texto)
 print(len(texto), len(datos))  # 8 caracteres, 3 bytes
 ```
 
-La longitud de un texto hexadecimal no es la longitud de los bytes representados. Registrar ambas cuando se transforme material de una captura. No aplicar `.encode()` al texto hexadecimal esperando obtener los valores que representa.
+La longitud del texto y la del dato representado son distintas. `bytes.fromhex()` interpreta los pares hexadecimales; aplicar `.encode()` al texto produciría los caracteres de esa representación.
 
-## Comparación con longitudes explícitas
+## Detectar un truncamiento
 
 ```python
 referencia = bytes.fromhex("01 02 03 04")
@@ -33,26 +37,29 @@ observado = bytes.fromhex("01 02 03")
 print(referencia == observado)  # False
 ```
 
-Comparar solo los pares producidos por `zip()` puede ocultar un truncamiento: `zip` se detiene al terminar el más corto. La utilidad incluida compara el prefijo común y después revisa la longitud. La primera diferencia se expresa con índice desde cero; si falta el último byte, el índice es el tamaño del prefijo común.
+Si se comparan pares con `zip()`, hay que revisar también las longitudes: la iteración termina cuando se acaba el archivo más corto. La utilidad incluida comprueba el prefijo común y después el tamaño.
 
-## Integridad de un archivo
+El primer índice de diferencia se cuenta desde cero. Cuando falta el último byte, coincide con la longitud del prefijo común.
+
+## Calcular un hash
 
 ```console
 python3 herramientas/auditoria_local.py hash evidencias/capturas/E02-offset-246.png
 ```
 
-Leer el archivo por bloques permite calcular un hash sin cargarlo entero. Un resultado de integridad no autentica la historia del archivo. Conservar procedencia y contexto por separado.
+La lectura por bloques permite calcular SHA-256 sin cargar el archivo completo en memoria. El resultado sirve para comprobar integridad e identificar una copia. La procedencia y el contexto de la evidencia deben registrarse aparte.
 
-## Ejecución y códigos de salida
+## Códigos de salida
 
-| Orden | Código 0 | Código 1 | Código 2 |
-|---|---|---|---|
-| `demo` | Demostración ejecutada | No utilizado | Error de uso o ejecución |
-| `hash ARCHIVO` | Hash calculado | No utilizado | Lectura o argumentos inválidos |
-| `compare REFERENCIA OBSERVADO` | Bytes idénticos | Diferencia o truncamiento detectado | Formato, tamaño o lectura inválidos |
+| Orden | Resultado |
+| :--- | :--- |
+| `demo` | 0 si termina correctamente |
+| `hash ARCHIVO` | 0 si puede leer y calcular el hash |
+| `compare REFERENCIA OBSERVADO` | 0 si coinciden; 1 si hay diferencia o truncamiento |
+| Error de uso, lectura, formato o tamaño | 2 |
 
-Los archivos de `compare` deben contener únicamente pares hexadecimales y espacios o saltos de línea. No aceptan prefijos `0x`, direcciones, columnas ASCII ni comentarios. El límite es 1 MiB de texto por archivo: una captura pegada como tabla debe limpiarse de manera controlada antes de entrar.
+`compare` acepta archivos con pares hexadecimales y espacios o saltos de línea. El límite es 1 MiB de texto por archivo. Los prefijos `0x`, las direcciones, los comentarios y las columnas ASCII de un dump deben limpiarse antes, conservando el original para revisar la conversión.
 
-## Qué automatizar y qué conservar manualmente
+## Uso dentro del análisis
 
-Automatizar hashes, longitudes y comparación reduce errores mecánicos. Elegir la dirección inicial, la sesión y el significado del resultado requiere criterio. Una salida JSON válida puede documentar perfectamente una referencia equivocada; el programa no decide si dos artefactos pertenecen al mismo experimento.
+Automatizar hashes, longitudes y comparaciones evita errores mecánicos. La utilidad no sabe si dos archivos pertenecen a la misma sesión ni si se eligió bien la dirección de memoria. Esos datos forman parte del registro del analista.

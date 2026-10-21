@@ -1,50 +1,54 @@
-# Metodología: de la hipótesis a la evidencia
+# Metodología de análisis
 
 [Volver al índice](../README.md)
 
-## Flujo completo con decisiones
+El trabajo combina una revisión estática del código con el estado que muestra el depurador. Los patrones, las comparaciones de memoria y las comprobaciones locales ayudan a relacionar ambos, siempre dentro de una sesión identificada.
+
+## Flujo de trabajo
 
 ```mermaid
 flowchart TD
-    A[Definir alcance y autorización] --> B[Inventario: origen, hash, arquitectura, versiones]
-    B --> C[IDA: cadenas, xrefs y rutas de copia]
-    C --> D[Hipótesis con ubicación y límites]
-    D --> E{Hay captura o sesión autorizada}
-    E -->|Captura existente| F[Revisar procedencia y contexto disponible]
-    E -->|Sesión autorizada| G[Registrar entrada y estado del proceso]
-    E -->|No| P[Pendiente: diseñar observación necesaria]
-    F --> H{Estado interpretable}
-    G --> H
-    H -->|No| P
-    H -->|Sí| I[Registros, pila, excepción e hilo]
-    I --> J[mona: patrón o comparación alineada]
-    J --> K[Python: integridad y representación]
-    K --> L{Conclusión respaldada}
-    L -->|Parcial| P
-    P --> M[Documentar incertidumbre y siguiente comprobación]
-    L -->|Sí| N[Informe: observación, interpretación y alcance]
-    M --> N
-    N --> O[Revisión de privacidad y derechos]
-    O --> Q[Paquete revisable]
-    Q --> R[Publicación tras autorización]
+    A[Definir objetivo y entorno autorizado] --> B[Registrar muestra, hash y versiones]
+    B --> C[Localizar cadenas y referencias en IDA]
+    C --> D[Anotar la ruta de código que se va a estudiar]
+    D --> E[Revisar la captura o sesión disponible]
+    E --> F{El contexto está completo}
+    F -->|Sí| G[Examinar excepción, registros y memoria]
+    F -->|No| H[Anotar los datos que faltan]
+    G --> I[Contrastar patrones y referencias con mona]
+    I --> J[Comprobar representaciones y archivos con Python]
+    J --> K[Redactar resultados y limitaciones]
+    H --> K
+    K --> L[Revisar el material antes de compartirlo]
 ```
 
-## Contratos entre fases
+## Preparación
 
-| Fase | Entrada | Acción del analista | Salida mínima | Condición para avanzar |
-|---|---|---|---|---|
-| Alcance | Encargo y artefactos autorizados | Fijar objetivo y límites | Ficha de sesión | Autorización suficiente para la acción concreta |
-| Inventario | Archivos originales | Calcular hash y confirmar arquitectura | Inventario versionado | Se identifica qué muestra se analiza |
-| Estático | Binario o capturas de IDA | Seguir datos, llamadas y ramas | Hipótesis localizada | No se confunde pseudocódigo con código fuente |
-| Dinámico | Captura o ejecución propia autorizada | Registrar excepción, hilo y contexto | Evidencia con procedencia | El síntoma no se reduce a un timeout |
-| Contraste | Patrón o referencia y memoria | Alinear, comparar, conservar salida | Resultado reproducible en su sesión | Se conocen origen, longitud y exclusiones |
-| Representación | Números, bytes y archivos | Verificar endian y hashes | Salida local | La transcripción no altera el significado |
-| Informe | Hechos e hipótesis | Contrastar afirmaciones y alternativas | Conclusión acotada | Cada afirmación importante tiene fuente |
-| Entrega | Paquete revisado | Revisar derechos, enlaces y privacidad | Versión publicable | La publicación dispone de autorización |
+Registra la muestra, su origen, hash y arquitectura. Añade las versiones del sistema y las herramientas, el snapshot y el objetivo de la sesión. Si se trabaja solo con capturas, deja constancia de esa condición: una imagen permite revisar un resultado, pero no recuperar todo el estado del proceso.
 
-Si falta una entrada, se registra la carencia. Una captura permite revisión documental, pero no equivale a disponer del binario y la sesión original.
+La salida de esta fase es una [ficha de sesión](../plantillas/sesion.md) que identifique los archivos y el entorno. Los datos que no estén disponibles deben quedar señalados.
 
-## Separación entre análisis estático y dinámico
+## Revisión estática
+
+En IDA se parte de las cadenas y sus referencias para localizar el código relevante. A partir de ahí se sigue la procedencia de los datos, las condiciones de cada rama y las operaciones de copia.
+
+El pseudocódigo facilita la lectura, aunque los tipos y nombres pueden ser inferidos. Cuando una conclusión depende de la capacidad de un destino o de un cálculo de punteros, hay que comprobarla también en ensamblador y en los llamadores.
+
+En el caso de FreeFloat, la rama de `USER` aporta una pista sobre una copia. La ruta asociada a `NOOP` necesita su propio seguimiento. La relación entre ambas debe apoyarse en el flujo real del programa.
+
+## Revisión dinámica
+
+El depurador permite observar una detención concreta. Primero se identifica la causa y después se examinan registros, pila y memoria. Un valor reconocible en EIP puede ser compatible con una entrada controlada, pero la relación necesita conservarse con la prueba y sus archivos.
+
+La información mínima incluye proceso, hilo, excepción, registros, instrucción y acción previa. Si se analiza una dirección, también interesan el módulo, su base y los permisos de la página.
+
+## Contraste con mona y Python
+
+mona ayuda a localizar una secuencia en un patrón y a comparar bytes con una referencia. Antes de interpretar el resultado, comprueba el archivo de referencia, la longitud y la dirección del primer byte. ESP puede apuntar al interior del dato.
+
+Python permite revisar el orden de bytes y comprobar que los archivos utilizados siguen siendo los mismos. El hash identifica un archivo; la comparación local señala diferencias. La elección de la referencia y su relación con la sesión siguen siendo responsabilidad del análisis.
+
+## Relación entre estático y dinámico
 
 ```mermaid
 sequenceDiagram
@@ -52,35 +56,29 @@ sequenceDiagram
     participant I as IDA
     participant D as Depurador
     participant M as mona
-    participant E as Expediente
-    A->>I: Seguir una cadena y sus referencias
-    I-->>A: Operación de copia y ramas candidatas
-    A->>E: Hipótesis, ubicación y supuestos
-    A->>D: Revisar estado de una sesión identificada
+    participant R as Registro de sesión
+    A->>I: Seguir una cadena hasta su código
+    I-->>A: Ramas y operaciones relevantes
+    A->>R: Guardar la ruta y los datos por comprobar
+    A->>D: Revisar una detención identificada
     D-->>A: Excepción, registros y memoria
-    A->>M: Contrastar referencia en dirección verificada
-    M-->>A: Coincidencia o diferencia localizada
-    A->>E: Hecho observado y límites
-    A->>E: Vincular rutas solo si existe evidencia causal
+    A->>M: Comparar una referencia desde su inicio
+    M-->>A: Coincidencias y diferencias
+    A->>R: Relacionar resultados y explicar sus límites
 ```
 
-La rama `USER` proporciona una pista estática. El resultado atribuido a `NOOP` necesita su propia ruta: manejador, construcción del mensaje de error y operación efectiva que corrompe memoria. Compartir proceso o contener una copia sin límite no establece esa relación por sí solo.
+## Alcance de las conclusiones
 
-## Escala de afirmaciones
+Hay varios niveles de información que conviene distinguir:
 
-1. **Síntoma:** el servicio no responde. Explicaciones posibles: pausa del depurador, red, timeout o proceso detenido.
-2. **Excepción registrada:** hay una detención y un contexto concreto. Falta determinar causa e influencia de la entrada.
-3. **Sobrescritura compatible con la entrada:** un valor reconocible aparece en EIP. Falta preservar correspondencia exacta entre entrada y sesión.
-4. **Correlación precisa:** patrón y marcador concuerdan en la misma configuración. El offset no se extrapola a otras rutas.
-5. **Redirección observada:** se ve un punto de interrupción coherente con la prueba. La estabilidad y las mitigaciones siguen siendo cuestiones separadas.
-6. **Reproducibilidad:** requiere varias sesiones controladas, artefactos y criterios definidos. No está demostrada por una única imagen.
+1. El servicio deja de responder. Todavía hay que separar un problema de red, una pausa y una excepción.
+2. El depurador registra una detención. Ya existe un estado que estudiar, aunque su causa puede necesitar más contexto.
+3. Aparece un valor compatible con la entrada. La sesión y los archivos permiten comprobar esa relación.
+4. Un patrón sitúa el dato en una posición concreta. El offset queda referido al inicio de ese patrón y a esa prueba.
+5. Se observa una redirección o una interrupción esperada. La estabilidad entre sesiones y las mitigaciones requieren comprobaciones adicionales.
 
-Esta escala describe niveles de evidencia, no una invitación a completar una cadena ofensiva. El recurso se centra en revisar y comunicar lo que existe.
+La documentación debe indicar hasta qué nivel llega la evidencia. El caso incluido permite revisar resultados históricos; los ejemplos locales tienen un registro independiente.
 
-## Tres reglas que ahorran errores
+## Cierre
 
-**Una variable por contraste.** Cambiar referencia, dirección y prefijo a la vez impide saber qué corrigió el resultado. Conservar un control conocido antes de una comparación nueva.
-
-**Una identidad por muestra.** Las etiquetas comerciales y nombres de archivo no sustituyen al hash. Si no existe hash, escribir “según la documentación fuente”.
-
-**Una conclusión por alcance.** Que una tabla llegue intacta no significa que todos los bytes del protocolo sean transparentes; que un encabezado no declare NXCompat no determina por sí solo la política DEP efectiva.
+El informe reúne cada observación con su archivo, la interpretación y los datos que falten. Para facilitar otra revisión, cambia una variable cada vez, conserva la referencia original y registra cualquier cambio de configuración. El [caso práctico](03-caso-practico.md) aplica este método a las capturas de FreeFloat.

@@ -1,55 +1,43 @@
-# Referencias y procedencia
+# Referencias
 
 [Volver al índice](../README.md)
 
-Consulta documental: **21 de octubre de 2026**. Se usan fuentes primarias para capacidades técnicas y un repositorio del usuario para el caso. Los enlaces a documentación viva pueden cambiar; el expediente del caso queda fijado por commit.
+Consulta documental: 21 de octubre de 2026. Los enlaces del caso apuntan a un commit concreto para conservar la versión utilizada. La documentación de las herramientas puede actualizarse con el tiempo.
 
-## Requisitos académicos
+## Enunciado
 
-**R01.** *Modulo6_TareaColaborativa.pdf*, documento aportado por el usuario, páginas 4-6: actividad, objetivo, entrega y notas. No se redistribuye el PDF docente. La [matriz](../ENTREGA.md) resume su aplicación sin inventar una rúbrica adicional.
+*Modulo6_TareaColaborativa.pdf*, páginas 4 a 6. Documento de la actividad aportado como referencia. La [memoria](../ENTREGA.md) explica la relación entre sus requisitos y el contenido del repositorio. El PDF no se redistribuye.
 
-## Caso de laboratorio
+## Laboratorio FreeFloat
 
-**R02.** [Repositorio fuente, versión fijada](https://github.com/jonbondani/CVE-2025-5548/tree/6c302ee05599ce34dae0892f8678bed802879dab), `jonbondani`. Contexto y material histórico.
+- [Repositorio del caso](https://github.com/jonbondani/CVE-2025-5548/tree/6c302ee05599ce34dae0892f8678bed802879dab): documentación y capturas de `jonbondani`.
+- [Entorno original](https://github.com/jonbondani/CVE-2025-5548/blob/6c302ee05599ce34dae0892f8678bed802879dab/01-Environment/README.md): instalación, VM y snapshot descritos en el laboratorio.
+- [Metodología original](https://github.com/jonbondani/CVE-2025-5548/blob/6c302ee05599ce34dae0892f8678bed802879dab/02-Exploitation/README.md): relato de las pruebas y sus resultados.
+- [Commit de referencia](https://github.com/jonbondani/CVE-2025-5548/commit/6c302ee05599ce34dae0892f8678bed802879dab): versión del 20 de octubre de 2026.
+- [NVD: CVE-2025-5548](https://nvd.nist.gov/vuln/detail/CVE-2025-5548): información pública del producto, versión y relación con `NOOP`.
 
-**R03.** [Entorno original](https://github.com/jonbondani/CVE-2025-5548/blob/6c302ee05599ce34dae0892f8678bed802879dab/01-Environment/README.md). Fuente de las descripciones de Windows, VirtualBox, IDA y snapshot; no acredita por sí sola la configuración efectiva de aislamiento.
+El [manifiesto de capturas](../evidencias/manifiesto.json) conserva las rutas reales de las imágenes. Algunas referencias del relato original utilizan rutas distintas de las que tienen los archivos en el commit.
 
-**R04.** [Metodología original](https://github.com/jonbondani/CVE-2025-5548/blob/6c302ee05599ce34dae0892f8678bed802879dab/02-Exploitation/README.md). Fuente del relato y resultados históricos; se revisa críticamente en el [caso](03-caso-practico.md). Las rutas históricas de algunas imágenes son inconsistentes con sus archivos: el [manifiesto](../evidencias/manifiesto.json) identifica las rutas reales verificadas.
+## Herramientas
 
-**R05.** [Commit de referencia](https://github.com/jonbondani/CVE-2025-5548/commit/6c302ee05599ce34dae0892f8678bed802879dab). Fecha documentada: 20-10-2026. Su cambio de estado editorial no sustituye resultados experimentales.
+- [IDA Free](https://hex-rays.com/ida-free): capacidades de la edición, requisitos y condiciones de uso.
+- [Documentación de Hex-Rays](https://docs.hex-rays.com/): operaciones, vistas y ayuda del producto.
+- [mona clásico](https://github.com/corelan/mona): proyecto utilizado en el flujo histórico y aviso de archivo.
+- [mona3](https://github.com/corelan/mona3): referencia para evaluar un entorno distinto en futuras sesiones.
+- [Ghidra](https://github.com/NationalSecurityAgency/ghidra): proyecto oficial de la alternativa de análisis estático.
+- [x64dbg](https://x64dbg.com/): funciones del depurador alternativo para Windows.
 
-**R06.** [NVD: CVE-2025-5548](https://nvd.nist.gov/vuln/detail/CVE-2025-5548). Referencia externa para producto, versión y relación pública con `NOOP`. Las métricas de riesgo de terceros no se presentan como resultados propios.
+Las alternativas se incluyen como orientación. Su presencia en las referencias no significa que se haya repetido el laboratorio con ellas.
 
-## Herramientas y fundamentos
+## Fundamentos y formatos
 
-**R07.** [Hex-Rays: IDA Free](https://hex-rays.com/ida-free). Edición, arquitecturas, decompilación y condiciones de uso. Consultar antes de instalar o introducir datos en servicios remotos.
+- [Python: struct](https://docs.python.org/3/library/struct.html): conversión entre enteros y bytes, tamaños y orden de representación.
+- [Python: hashlib](https://docs.python.org/3/library/hashlib.html): cálculo de hashes de archivos y datos.
+- [Microsoft: Data Execution Prevention](https://learn.microsoft.com/en-us/windows/win32/memory/data-execution-prevention): permisos de ejecución y política de memoria.
+- [GitHub: diagramas Mermaid](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams): soporte de diagramas dentro de Markdown.
 
-**R08.** [Hex-Rays: documentación](https://docs.hex-rays.com/). Punto de entrada oficial para confirmar operaciones y atajos según versión. Recurso de ampliación; no se utiliza para atribuir una ejecución a esta entrega.
+## Identificación de los resultados
 
-**R09.** [Corelan: mona clásico](https://github.com/corelan/mona). Proyecto histórico y aviso de archivo. El caso fija su propio entorno; el repositorio remite a mona3.
+En el recurso se distingue entre los datos visibles en una captura, las descripciones del laboratorio original y las interpretaciones que se explican a partir de ellos. Las comprobaciones por completar se señalan en el caso práctico. Los ejercicios sintéticos tienen sus propios archivos y resultados en la carpeta `ejemplos`.
 
-**R10.** [Corelan: mona3](https://github.com/corelan/mona3). Referencia para evaluar una ruta de herramientas distinta en futuras sesiones. No se ha probado una migración del laboratorio.
-
-**R11.** [Python: struct](https://docs.python.org/3/library/struct.html). Orden de bytes, tamaños y conversión entre enteros y bytes.
-
-**R12.** [Python: hashlib](https://docs.python.org/3/library/hashlib.html). Ampliación oficial sobre funciones de hash usadas para integridad local.
-
-**R13.** [Microsoft: Data Execution Prevention](https://learn.microsoft.com/en-us/windows/win32/memory/data-execution-prevention). Referencia para distinguir permisos de ejecución de memoria, política efectiva y atributos del ejecutable.
-
-**R14.** [NSA: Ghidra](https://github.com/NationalSecurityAgency/ghidra). Proyecto oficial de la alternativa estática incluida en la comparación.
-
-**R15.** [x64dbg](https://x64dbg.com/). Capacidades del depurador alternativo de usuario para Windows.
-
-**R16.** [GitHub: diagramas Mermaid](https://docs.github.com/en/get-started/writing-on-github/working-with-advanced-formatting/creating-diagrams). Ampliación para comprobar el renderizado del flujo tras la publicación.
-
-## Cómo citar el recurso después de publicarlo
-
-Usar propietario, título, fecha de la edición, URL real del repositorio y commit de la versión entregada. No se incluye una URL ficticia, DOI, licencia o versión publicada inexistente.
-
-## Convención de atribución interna
-
-- **Observado en captura:** dato visual revisado, con ID E01-E06.
-- **Documentado por la fuente:** afirmación del relato original que no se ha reproducido aquí.
-- **Interpretación:** razonamiento del recurso con alcance explícito.
-- **Propuesta pendiente:** acción que requiere una sesión posterior o información adicional.
-- **Sintético comprobado:** comportamiento local de los ejemplos de esta entrega, ajeno a la ejecución de FreeFloat.
+Para citar una versión publicada, utiliza autoría, título, fecha, URL del repositorio y commit. Así la referencia permite recuperar los mismos archivos.

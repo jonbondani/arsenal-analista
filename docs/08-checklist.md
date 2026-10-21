@@ -2,51 +2,51 @@
 
 [Volver al índice](../README.md)
 
-## A. Preparación del recurso: comprobación de esta edición
+## Contenido revisado
 
-- [x] Páginas 4-6 del PDF original consultadas y matriz de cobertura redactada.
-- [x] Repositorio fuente leído sin modificación remota.
-- [x] Versión de referencia identificada mediante commit.
-- [x] Capturas seleccionadas revisadas visualmente y atribuidas.
-- [x] Hechos históricos separados de hipótesis y comprobaciones pendientes.
-- [x] Cheatsheets, flujo Mermaid, caso, tutorial y comparativa incluidos.
-- [x] Limitaciones y troubleshooting incluidos.
-- [x] Ejemplos locales sintéticos incluidos y comprobados; ver [validación](../ejemplos/VALIDACION.md).
-- [x] Sin binarios vulnerables ni scripts de explotación en el paquete.
-- [x] Sin publicación ni modificación del repositorio remoto.
+- [x] Requisitos de las páginas 4 a 6 relacionados con los apartados del recurso.
+- [x] Documentación del caso identificada por commit.
+- [x] Seis capturas revisadas y comprobadas contra sus archivos originales.
+- [x] Metodología, cheatsheets, tutorial y comparativa incluidos.
+- [x] Limitaciones y comprobaciones por completar explicadas.
+- [x] Ejemplos locales ejecutados y resultados guardados en [validación](../ejemplos/VALIDACION.md).
+- [x] Enlaces locales, hashes y contenido del ZIP revisados.
 
-La validación mecánica de enlaces y hashes se registra en [VALIDACION](../ejemplos/VALIDACION.md). Esta lista no certifica el laboratorio original.
+## Antes de una sesión de laboratorio
 
-## B. Checklist reutilizable para una nueva sesión
+- [ ] Registrar objetivo, alcance y autorización.
+- [ ] Comprobar aislamiento de red y snapshot.
+- [ ] Guardar origen, hash y arquitectura de la muestra.
+- [ ] Anotar versiones del sistema, depurador, IDA, plugin e intérpretes.
+- [ ] Conservar la entrada y la referencia exactas.
 
-Estas casillas están vacías porque son una plantilla para quien realice la sesión.
+## Durante el análisis
 
-- [ ] Alcance y autorización registrados.
-- [ ] Topología de aislamiento y snapshot comprobados.
-- [ ] Hash, procedencia y arquitectura de la muestra anotados.
-- [ ] Versiones de SO, depurador, IDA, plugin e intérpretes anotadas.
-- [ ] Pregunta de análisis y criterio de aceptación definidos.
-- [ ] Entrada o referencia exacta conservada con hash.
-- [ ] Excepción, hilo, registros y memoria corresponden a la misma sesión.
-- [ ] Offset definido respecto a un origen y una convención de índices.
-- [ ] Dirección inicial de comparación verificada en el dump.
-- [ ] Exclusiones distinguidas de fallos demostrados.
-- [ ] Módulos, bases y RVA usados donde corresponde.
-- [ ] Atributos PE separados de mitigaciones efectivas.
-- [ ] Conclusiones redactadas con evidencias y límites.
-- [ ] Propuestas pendientes tienen condición de aceptación.
+- [ ] Relacionar excepción, hilo, registros y memoria con la misma sesión.
+- [ ] Expresar el offset desde un origen y con una convención de índices.
+- [ ] Comprobar la dirección inicial antes de comparar memoria.
+- [ ] Registrar los bytes excluidos y el motivo de cada exclusión.
+- [ ] Identificar módulo, base y RVA cuando se utilicen direcciones.
+- [ ] Separar atributos del ejecutable y mitigaciones efectivas.
+- [ ] Guardar el resultado antes de continuar o cambiar la configuración.
 
-## C. Revisión del propietario antes de publicar y enviar
+## Al cerrar la sesión
 
-- [ ] Confirmar participantes reales y herramientas del temario.
-- [ ] Revisar que la selección de capturas propias puede publicarse con su atribución.
-- [ ] Revisar privacidad contextual: nombres, rutas, direcciones y contenido visible.
-- [ ] Decidir derechos/licencia del material propio sin relicenciar material ajeno.
-- [ ] Confirmar destino: repositorio nuevo o integración en uno existente.
-- [ ] Autorizar expresamente la publicación o modificación remota.
-- [ ] Publicar y abrir la URL en una ventana sin autenticación.
-- [ ] Verificar renderizado de Markdown, imágenes y Mermaid en GitHub.
-- [ ] Verificar que el ZIP corresponde a la versión publicada.
-- [ ] Sustituir la frase pendiente del texto docente por la URL real y enviar.
+- [ ] Explicar cada resultado con su evidencia y alcance.
+- [ ] Anotar los datos que falten para repetir la prueba.
+- [ ] Describir las comprobaciones siguientes y su resultado esperado.
+- [ ] Revisar privacidad y derechos del material que se va a compartir.
 
-La sección C no se marca como completada por haber preparado este paquete. El usuario pidió reservar la publicación para una confirmación posterior.
+## Antes de publicar y enviar
+
+- [ ] Confirmar datos de autoría y participantes, si los hay.
+- [ ] Revisar la relación de las herramientas con el temario.
+- [ ] Comprobar las capturas y la información visible en ellas.
+- [ ] Revisar atribuciones y condiciones de reutilización.
+- [ ] Subir el contenido de la carpeta al repositorio elegido.
+- [ ] Abrir la URL sin autenticación y comprobar que es pública.
+- [ ] Revisar imágenes, enlaces y diagramas en GitHub.
+- [ ] Conservar la versión publicada y el ZIP correspondiente.
+- [ ] Enviar la URL por el canal docente.
+
+Las casillas vacías sirven para revisar una nueva sesión o la publicación manual. No describen pruebas ya completadas en el laboratorio original.

@@ -1,35 +1,69 @@
-# Troubleshooting: diagnosticar sin añadir supuestos
+# Resolución de problemas
 
 [Volver al índice](../README.md)
 
-| Síntoma | Explicaciones posibles | Comprobación útil | Cuándo darlo por resuelto |
-|---|---|---|---|
-| No hay respuesta FTP | Proceso pausado, servicio detenido, red o timeout | En laboratorio autorizado, revisar estado del proceso y conectividad básica por separado | Se identifica la causa con evidencia, sin deducir un crash solo por red |
-| EIP no coincide con el patrón esperado | Otra entrada, prefijo distinto, otra ruta o sesión mezclada | Comparar patrón exacto, entrada y contexto de la captura | Todos pertenecen a una misma sesión identificada |
-| mona no devuelve coincidencia | Valor mal transcrito, modo/longitud diferentes o patrón ajeno | Confirmar representación hexadecimal y archivo de referencia | La coincidencia se valida contra el patrón utilizado, o se marca no encontrada |
-| Casi toda la tabla parece modificada | Dirección inicial errónea o referencia antigua | Buscar secuencia inicial y revisar hashes | Se demuestra alineación correcta antes de interpretar diferencias |
-| La referencia comienza con `09` en ESP | ESP puede apuntar dentro de la secuencia | Localizar el primer byte y conservar registros del mismo instante | Se documenta el inicio real; no se aplica un ajuste fijo por costumbre |
-| `Unmodified`, pero hay dudas sobre bytes excluidos | Esos valores no formaban parte de la referencia | Revisar cómo se generó la tabla | La conclusión limita el conjunto observado |
-| El plugin no carga | Versión, host, ruta o intérprete incompatibles | Revisar instalación y ayuda de la versión concreta | Una orden de diagnóstico funciona en el host elegido |
-| F5 no genera pseudocódigo | Edición, licencia, servicio o función no disponibles | Revisar condiciones y continuar en ensamblador cuando proceda | Se identifica la limitación sin atribuir capacidades no presentes |
-| Una VA cambia | ASLR, otra versión, otra base o sesión | Comparar módulo, base y RVA | Se explica el cambio con inventario, no con direcciones sueltas |
-| Aparece `INT3` sin el resultado esperado | Breakpoint del depurador, dato ya presente o ruta distinta | Revisar origen del breakpoint y contexto previo | Se sabe quién insertó la interrupción y en qué sesión |
-| Hash distinto en una captura | Copia distinta, edición, corrupción o conversión | Volver al origen y comparar tamaño y bytes | Se registra la diferencia; no se cambia el manifiesto para ocultarla |
-| `compare` devuelve 1 | Los ejemplos difieren deliberadamente o existe una diferencia real | Leer longitudes y primer índice | Se clasifica como resultado, no como fallo de instalación |
-| `compare` devuelve 2 | Formato no hexadecimal, archivo ilegible o demasiado grande | Usar solo pares hexadecimales y espacios | Entrada válida y resultado interpretable |
-| Mermaid no se ve | Visor sin soporte o sintaxis no admitida | Abrir Markdown en GitHub; consultar la tabla de fases | Se conserva una explicación textual legible |
+## El servicio no responde
 
-## Procedimiento para una comparación sospechosa
+Un timeout puede deberse a una pausa del depurador, a un proceso detenido o a la comunicación de red. En una sesión autorizada, revisa primero el estado del proceso y comprueba la conectividad por separado. El timeout no permite identificar por sí solo un crash.
 
-1. Detener cambios y guardar el resultado inicial.
-2. Confirmar referencia, hash y longitud.
-3. Localizar manualmente el inicio real de la secuencia.
-4. Repetir solo la comparación en el estado autorizado, sin cambiar varias variables.
-5. Comparar las dos salidas y anotar qué cambió.
-6. Si falta el estado original, marcar la explicación como hipótesis y diseñar una sesión nueva.
+## El valor de EIP no coincide con el patrón
 
-No “reparar” una captura existente ni editar una salida para hacerla coincidir. Si solo se dispone de imágenes, puede identificarse la duda, pero quizá no resolverse.
+Comprueba que el patrón, la entrada y la captura pertenecen a la misma sesión. Un espacio, un prefijo o un comando diferente puede cambiar el origen de la medida. Revisa también la representación hexadecimal del valor y el modo con el que se consulta el patrón.
 
-## Cómo pedir ayuda de forma útil
+Si no se conserva la entrada exacta, deja anotada esa falta de contexto antes de atribuir la diferencia a otra causa.
 
-Compartir versión de herramientas, arquitectura, orden exacta, resultado resumido y un recorte público revisado. Evitar dumps, tokens, rutas personales o direcciones ajenas innecesarias. Indicar qué ya se comprobó y qué variable se está intentando aislar. Usar la [ficha de sesión](../plantillas/sesion.md) como base reduce intercambios ambiguos.
+## mona no encuentra la secuencia
+
+Revisa el valor transcrito y el patrón utilizado. La longitud o el modo de generación pueden ser distintos. Conserva la salida completa, incluso cuando no haya coincidencia, para poder contrastarla con la referencia.
+
+## La tabla parece modificada casi desde el principio
+
+La causa puede estar en la dirección inicial o en un archivo de referencia antiguo. Localiza el principio de la secuencia en el dump y comprueba el hash y la longitud de la referencia antes de interpretar bytes alterados.
+
+Si ESP apunta a una posición cuyo primer byte es `09`, puede estar dentro de la tabla. El ajuste de ocho bytes descrito en el caso no se debe aplicar automáticamente a otras sesiones.
+
+## Aparece Unmodified con bytes excluidos
+
+El resultado se limita a los valores presentes en la referencia. Revisa cómo se generó la tabla y conserva las exclusiones junto a la salida. Para conocer el comportamiento de un byte omitido haría falta una prueba específica que lo incluyera y quedara documentada.
+
+## El plugin no carga
+
+Comprueba host, versión, ruta de instalación e intérprete. El entorno de mona clásico y el de mona3 pueden tener requisitos distintos. Antes de empezar el análisis, verifica que una orden de diagnóstico funciona en la instalación elegida.
+
+## IDA no genera pseudocódigo
+
+La disponibilidad depende de la edición, la licencia, el servicio y el estado del análisis. Revisa las condiciones de la instalación y continúa con el grafo y el ensamblador cuando sea necesario. El pseudocódigo facilita el trabajo, pero las instrucciones siguen siendo la referencia para comprobar una reconstrucción dudosa.
+
+## Una dirección cambia entre sesiones
+
+Compara módulo, versión, base y RVA. La diferencia puede deberse a ASLR, a otra muestra o a otro contexto. Una dirección virtual aislada no permite distinguir esas causas.
+
+## La detención en INT3 no tiene el contexto esperado
+
+Revisa si el breakpoint fue insertado por el depurador, si formaba parte de los datos o si el proceso llegó por otra ruta. Guarda el estado anterior cuando esté disponible y registra la sesión. La instrucción visible no explica por sí sola toda la ejecución previa.
+
+## El hash de una captura es distinto
+
+Comprueba tamaño y origen. Puede tratarse de otra copia, una edición, una conversión o un archivo dañado. Conserva la diferencia en el registro; el manifiesto debe reflejar los archivos que realmente corresponden a la versión compartida.
+
+## La utilidad local termina con código 1 o 2
+
+`compare` devuelve 1 cuando encuentra una diferencia o un truncamiento. Los dos archivos del tutorial difieren a propósito, así que ese resultado es el esperado.
+
+El código 2 indica un problema de lectura, formato o tamaño. Los archivos aceptan pares hexadecimales con espacios o saltos de línea, sin direcciones, comentarios ni columnas ASCII. El límite es 1 MiB de texto por archivo.
+
+## El visor no muestra Mermaid
+
+Abre el documento en GitHub y revisa el bloque de código. La explicación de cada fase se conserva también en texto para poder seguir la metodología desde un visor sin soporte de diagramas.
+
+## Revisar una comparación paso a paso
+
+1. Guarda el resultado inicial antes de cambiar nada.
+2. Comprueba referencia, hash y longitud.
+3. Localiza el primer byte de la secuencia.
+4. Repite la comparación cambiando solo la variable que se está revisando.
+5. Anota la diferencia entre ambas salidas.
+
+Si solo quedan imágenes y falta el estado original, la causa puede quedar sin resolver. En ese caso conviene describir la explicación posible y la información necesaria para comprobarla.
+
+Al compartir un problema, incluye arquitectura, versiones, orden utilizada y resultado resumido. La [ficha de sesión](../plantillas/sesion.md) ayuda a reunir esos datos sin enviar dumps o información privada innecesaria.

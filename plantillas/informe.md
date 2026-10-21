@@ -1,47 +1,49 @@
-# Informe técnico reutilizable
+# Plantilla de informe técnico
 
-> Plantilla. No representa resultados realizados ni un informe automático de vulnerabilidad.
+Utiliza estos apartados para presentar el análisis y enlazar sus evidencias. Indica desde el principio si el trabajo corresponde a una revisión de documentación, una ejecución propia o ejercicios sintéticos.
 
-## Resumen ejecutivo
+## Resumen
 
-Describir la pregunta, el alcance y la conclusión principal en tres o cuatro frases. Indicar explícitamente si se trata de revisión documental, reproducción propia o práctica sintética.
+Describe el objetivo, el entorno y el resultado principal. Incluye las limitaciones que cambien la interpretación del resultado.
 
 ## Alcance y método
 
-Identificar versión o commit de las fuentes, artefactos recibidos, permisos y métodos. Declarar exclusiones que afecten a la interpretación.
+Identifica las fuentes, sus versiones o commits y los archivos utilizados. Explica las operaciones realizadas y las partes que quedan fuera del análisis.
 
 ## Entorno
 
-Registrar muestra, hash, arquitectura, sistema, VM/snapshot y versiones de herramientas. Escribir “no disponible” donde falte información.
+Registra muestra, origen, hash, arquitectura, sistema, VM o snapshot y versiones de las herramientas. Señala los datos que no estén disponibles.
 
 ## Evidencias
 
-| ID | Procedencia e integridad | Observación | Interpretación | Límite |
-|---|---|---|---|---|
-| Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| ID | Archivo y procedencia | Observación | Interpretación | Limitación |
+| :--- | :--- | :--- | :--- | :--- |
+| | | | | |
 
-## Cadena de razonamiento
+Enlaza las capturas y los resultados desde cada explicación. Conserva la relación entre el archivo y la sesión que lo produjo.
 
-Para cada afirmación: qué se observó, qué explicación apoya, qué explicaciones alternativas permanecen y qué observación las distinguiría. No encadenar resultados de sesiones distintas sin declararlo.
+## Análisis
 
-## Impacto dentro del alcance
+Explica el recorrido desde la entrada hasta el resultado observado. Separa las operaciones visibles de las interpretaciones y de las comprobaciones que falten. Si se utilizan varias sesiones, identifica qué aporta cada una.
 
-Separar síntoma, corrupción de estado, influencia de la entrada y cualquier efecto adicional efectivamente observado. Si se cita una clasificación pública, identificar su fuente y no presentarla como una medición propia.
+## Impacto observado
+
+Describe los efectos que se hayan registrado: pérdida de respuesta, excepción, cambio de estado u otro comportamiento. Si se cita una clasificación pública, añade su fuente y distínguela de los resultados de la prueba.
 
 ## Limitaciones
 
-Declarar datos faltantes, fuentes parciales, hipótesis, variaciones de entorno y condiciones que impiden generalizar.
+Recoge la información que falta, las diferencias de entorno y las condiciones que impiden generalizar. Relaciona cada limitación importante con una comprobación que permita resolverla.
 
-## Próximos pasos
+## Continuación
 
-| ID | Acción pendiente | Responsable real | Criterio de aceptación |
-|---|---|---|---|
-| Pendiente | Pendiente | Sin asignar | Pendiente |
+| Comprobación | Responsable | Resultado necesario para completarla |
+| :--- | :--- | :--- |
+| | | |
 
 ## Recomendaciones defensivas
 
-Proponer inventario y reducción de exposición de software obsoleto, controles de longitud y validación de entradas cuando se controle el código, aislamiento y supervisión apropiados al contexto. Diferenciar recomendaciones generales de cambios probados. No afirmar que existe un parche o una versión corregida sin verificarlo.
+Ajusta las recomendaciones al contexto: inventario, reducción de exposición, validación de longitudes, aislamiento y supervisión. Identifica los cambios que se hayan probado y comprueba la existencia de una versión corregida antes de recomendarla como solución.
 
-## Material público y material reservado
+## Archivos que se comparten
 
-Identificar las capturas o ejemplos autorizados para publicación. Mantener fuera del repositorio datos personales innecesarios, secretos, dumps y hallazgos nuevos que requieran tratamiento privado.
+Enumera las capturas, ejemplos e informes autorizados para publicación. Mantén aparte secretos, datos personales innecesarios, dumps privados y cualquier hallazgo nuevo que requiera tratamiento reservado.

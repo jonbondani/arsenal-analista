@@ -1,56 +1,53 @@
-# Guía de operación para incorporarse al análisis
+# Guía de operación
 
 [Volver al índice](../README.md)
 
-## 1. Definir una pregunta que pueda responderse
+## Preparar el análisis
 
-Una sesión útil comienza con una pregunta concreta: «¿Qué parte del estado del proceso relaciona esta entrada con el crash?». Evita comenzar con «conseguir ejecución de código», porque mezcla objetivos distintos y favorece afirmar más de lo que muestran las capturas. En esta entrega el objetivo es revisar evidencias existentes de un caso público y aprender a documentar resultados.
+Antes de abrir las herramientas, conviene fijar el objetivo de la sesión. En este caso se trata de relacionar una entrada con el estado del proceso y comprobar hasta dónde permiten llegar las evidencias disponibles.
 
-El responsable del análisis delimita artefactos permitidos, sistema autorizado, ventana de trabajo, condiciones de parada y destino de los resultados. Si solo se revisa este paquete, no hace falta ejecutar el servicio. Para una futura sesión dinámica, usar exclusivamente una VM autorizada, desechable, con snapshot y red interna o host-only sin exposición a Internet. Registrar la topología real; tener una VM no garantiza aislamiento.
+Si trabajas sobre las capturas incluidas, puedes seguir toda la revisión sin ejecutar el servicio. Para una sesión dinámica hace falta un entorno autorizado, una VM desechable y un snapshot al que volver. La red debe estar aislada, por ejemplo mediante una red interna o host-only, sin exponer el servidor a Internet. La configuración real de la red debe quedar anotada junto al resto del entorno.
 
-## 2. Crear el expediente antes de abrir herramientas
+## Organizar los archivos
 
-Duplica la [ficha de sesión](../plantillas/sesion.md) y asigna un identificador. Anota zona horaria, origen, SHA-256 de cada binario o dump, arquitectura del proceso, versión de Windows, snapshot, versiones de las herramientas y del plugin. Una dirección sin módulo y una captura sin sesión pierden valor rápidamente.
+La [ficha de sesión](../plantillas/sesion.md) ayuda a reunir los datos básicos: fecha, objetivo, muestra, hash, arquitectura, herramientas y snapshot. Es más sencillo completar esta información al empezar que reconstruirla después a partir de varias capturas.
 
-Ejemplo de inventario pendiente para el caso original:
+En el laboratorio original se describe FreeFloat FTP Server 1.0 en Windows 11 sobre VirtualBox. La guía cita IDA Free 9.4 para Windows x64 y la metodología identifica el ejecutable como PE 80386. Faltan el hash de esa muestra, la build de Windows y las versiones completas de Immunity y mona. Son datos necesarios para repetir el análisis con precisión.
 
-| Dato | Lo que existe | Lo que debe registrarse en otra sesión |
-|---|---|---|
-| Software | FreeFloat FTP Server 1.0 según el repositorio | Hash del ejecutable concreto |
-| Arquitectura | PE 80386 descrito por el caso | Confirmación de cabecera PE y modo del depurador |
-| Sistema | Windows 11 y VirtualBox documentados | Build, configuración de VM y mitigaciones efectivas |
-| IDA | La guía fuente menciona IDA Free 9.4 para Windows x64 | Versión de instalación, licencia y modo de decompilación |
-| Immunity y mona | Visibles o citados en el laboratorio | Versiones y hashes; intérprete embebido y configuración |
-| Python externo | Scripts descritos como Python 3 | Versión, hash de cada script y entradas exactas |
+El sistema operativo y el proceso no tienen por qué compartir arquitectura. Windows x64 puede ejecutar una aplicación x86. En las capturas se trabaja con EIP y ESP, así que la interpretación de esos registros corresponde a un proceso de 32 bits.
 
-Windows x64 y una aplicación x86 pueden coexistir. El tamaño de palabra que interesa para interpretar EIP es el del proceso objetivo. El Python usado para utilidades externas tampoco equivale al intérprete que carga un plugin dentro del depurador.
+También hay que separar el Python utilizado para los scripts externos del intérprete que carga el plugin dentro del depurador. Actualizar uno no garantiza la compatibilidad del otro.
 
-## 3. Elegir herramientas por pregunta
+## Repartir el trabajo entre herramientas
 
-| Pregunta | Herramienta principal | Artefacto de salida |
-|---|---|---|
-| ¿Qué bloques procesan una cadena? | IDA Free | Función, xrefs, grafo y nota de hipótesis |
-| ¿Qué estado existe al detenerse el proceso? | Immunity Debugger | Tipo de excepción, hilo, registros, pila y memoria |
-| ¿Coinciden estos bytes con una referencia? | mona | Comando exacto, archivo de referencia y resultado |
-| ¿Se copió bien una dirección o un archivo? | Python | Comparación explícita, hash y salida local |
-| ¿Qué demuestra todo ello? | Revisión del analista | Informe con hechos, hipótesis y límites |
+**IDA Free** sirve para localizar cadenas, seguir referencias y estudiar los bloques que procesan una entrada. La salida útil es una ruta de código con sus ubicaciones y una explicación de lo que se espera comprobar en ejecución.
 
-IDA reduce el espacio de búsqueda; Immunity muestra un estado concreto; mona automatiza comprobaciones repetitivas; Python ayuda a evitar errores de representación y a conservar integridad. Ninguna herramienta sustituye el enlace causal entre entrada y efecto.
+**Immunity Debugger** muestra los registros, la pila y la memoria del proceso detenido. Para conservar ese resultado hacen falta el contexto de la sesión, el hilo y la causa de la detención.
 
-## 4. Trabajar con puntos de control
+**mona** automatiza la consulta de patrones y la comparación de memoria. Sus resultados dependen de que la referencia, la longitud y la dirección inicial sean las correctas.
 
-Antes de interpretar un crash, registra qué proceso está detenido y si la excepción es de lectura, escritura, ejecución u otro tipo. No infieras un crash a partir de un timeout de red. Antes de comparar memoria, localiza la secuencia inicial y confirma cuántos bytes se van a leer. Antes de usar una dirección, separa VA, RVA y offset de archivo.
+**Python** facilita comprobaciones pequeñas, como convertir un entero a bytes, encontrar una diferencia o calcular el hash de un archivo. Es útil para evitar errores de transcripción y mantener identificadas las evidencias.
 
-Si se cambia de binario, de ruta del protocolo, de prefijo, de versión del sistema o de snapshot, abre una nueva sesión. No mezcles resultados de configuraciones distintas para completar una explicación que ninguna de ellas demuestra por separado.
+## Revisar el estado del proceso
 
-## 5. Preservar y transferir conocimiento
+Un timeout de red es un síntoma. El depurador permite comprobar si el proceso está pausado, si se ha producido una excepción o si el servicio sigue activo. Conviene guardar el contexto antes de continuar, porque al reanudar la ejecución puede perderse el estado que se estaba examinando.
 
-Guarda las capturas originales y su hash local. Si hay que redactar datos, conserva el original fuera del repositorio, crea una copia pública identificada como editada y registra la transformación. La copia pública debe conservar el contexto técnico necesario sin incluir secretos. Esta entrega selecciona capturas ya públicas y no contiene dumps completos.
+Al documentar una detención, conserva el proceso, el hilo, el tipo de excepción, los registros relevantes y la instrucción señalada. Si se compara memoria, añade la dirección inicial y la longitud de la referencia.
 
-Cada hallazgo debe poder expresarse así: «En E05, la referencia de 253 bytes produjo `Unmodified` en una dirección concreta. Esto apoya que los bytes comparados llegaron sin cambios en esa prueba. No demuestra el comportamiento de los bytes omitidos». Esa frase es más útil para el compañero que una casilla genérica de “badchars completado”.
+## Mantener separadas las sesiones
 
-## 6. Cerrar la sesión
+Un cambio de binario, prefijo, comando FTP, sistema o snapshot puede cambiar el resultado. Abre una sesión nueva o deja el cambio claramente registrado. Un offset o una dirección de otra ejecución pueden orientar la revisión, pero necesitan comprobarse de nuevo.
 
-Completa el [checklist](08-checklist.md), actualiza el [informe](../plantillas/informe.md) y deja una tarea pendiente con condición de aceptación para cada incógnita. Una tarea como «comprobar ASLR» es demasiado ambigua; «registrar módulo, base y RVA en sesiones independientes con reinicio y comparar resultados» permite saber cuándo se ha completado.
+Al cruzar ubicaciones de IDA con el depurador, distingue la dirección virtual, la base del módulo y el RVA. El offset de archivo es otra medida y no se puede intercambiar directamente con ellas.
 
-No hace falta alcanzar ejecución arbitraria para cerrar un análisis documental valioso. El cierre requiere una conclusión proporcional, trazabilidad y una explicación de lo que falta.
+## Guardar las evidencias
+
+Conserva las capturas originales y sus hashes. Si una copia pública necesita ocultar información, guarda el original aparte y registra la edición realizada. Mantén visibles los datos necesarios para entender la prueba.
+
+Cada captura debe acompañarse de una explicación breve: operación realizada, resultado visible y alcance. En una comparación de memoria interesa saber qué referencia se utilizó y qué bytes se excluyeron. En un registro con un marcador interesa poder relacionarlo con la entrada de esa misma sesión.
+
+## Cerrar el trabajo
+
+El [informe](../plantillas/informe.md) recoge los resultados y las limitaciones. Las comprobaciones que falten deben describirse con suficiente detalle para poder retomarlas. Por ejemplo, para estudiar la estabilidad de una dirección hay que registrar módulo, base y RVA en sesiones independientes y comparar los resultados tras reiniciar.
+
+La sesión queda bien documentada cuando otra persona puede seguir las evidencias, entender la conclusión y localizar la información que falta. El [checklist](08-checklist.md) permite revisar esos puntos antes de compartir el material.

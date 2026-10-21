@@ -1,48 +1,46 @@
-# Cheatsheet comentada: IDA Free
+# Cheatsheet de IDA Free
 
-[Índice](../README.md) · [Caso](../docs/03-caso-practico.md)
+[Índice](../README.md) · [Caso práctico](../docs/03-caso-practico.md)
 
-**Pregunta principal:** ¿cómo llega un dato a una operación relevante?  
-**Uso en el caso:** cadenas FTP, referencias, dispatcher y copia.  
-**Estado:** acciones descritas por la documentación histórica; no se abrió el binario en esta preparación.
+IDA permite estudiar las funciones y seguir el recorrido de un dato por el binario. En el caso de FreeFloat se utiliza para localizar cadenas FTP, seguir sus referencias y revisar las operaciones de copia.
 
-## Ruta de trabajo
+## Operaciones habituales
 
-| Acción | Operación orientativa | Para qué sirve | Qué conservar |
-|---|---|---|---|
-| Confirmar carga | Revisar loader PE y arquitectura antes del autoanálisis | Evitar un modo de desensamblado equivocado | Arquitectura, base de imagen y hash externo |
-| Abrir cadenas | `View > Open subviews > Strings` | Localizar vocabulario del protocolo | Cadena, ubicación y contexto |
-| Seguir una referencia | Seleccionar elemento y abrir referencias cruzadas; habitualmente `X` | Encontrar usos reales | Lista de xrefs y función de destino |
-| Saltar a una ubicación | `G`, si está asignado en la instalación | Volver a una posición documentada | Dirección y nombre de función |
-| Alternar grafo y texto | `Space`, en la vista de desensamblado | Comparar estructura y detalle | Bloque y salto condicional |
-| Decompilar | `F5` si la edición y el servicio lo permiten | Leer una representación de alto nivel | Pseudocódigo junto al ensamblador |
-| Nombrar una función | `N` en el contexto adecuado | Sustituir un nombre automático por uno útil | Nombre y justificación |
-| Comentar | `;` en el contexto adecuado | Separar dato observado de interpretación | Comentario con etiqueta de confianza |
+| Operación | Acceso orientativo | Uso |
+| :--- | :--- | :--- |
+| Revisar la carga | Loader PE y arquitectura | Confirmar el modo de análisis antes de continuar |
+| Abrir cadenas | `View > Open subviews > Strings` | Localizar nombres de comandos y mensajes |
+| Seguir referencias | Menú de referencias cruzadas, habitualmente `X` | Encontrar el código que utiliza un elemento |
+| Ir a una ubicación | `G` | Volver a una dirección anotada |
+| Cambiar entre grafo y texto | `Space` en la vista de desensamblado | Leer la estructura y el detalle de un bloque |
+| Abrir pseudocódigo | `F5`, si está disponible | Seguir la lógica con una representación de alto nivel |
+| Renombrar | `N` en el contexto adecuado | Sustituir nombres automáticos por otros descriptivos |
+| Comentar | `;` en el contexto adecuado | Guardar observaciones junto al código |
 
-Los atajos dependen de versión, foco, plataforma y configuración; comprobarlos en el menú de la instalación. La guía fuente cita `Ctrl+X` para referencias. Para una instrucción de equipo, documentar el menú y confirmar el atajo efectivo en lugar de asumir que todas las instalaciones coinciden.
+Los atajos pueden cambiar según versión, plataforma, foco y configuración. La guía original cita `Ctrl+X` para referencias. Si la combinación no coincide con tu instalación, utiliza el menú y comprueba el atajo asignado.
 
-## Cómo leer una copia sin sobreinterpretarla
+## Seguir una entrada
 
-1. Identificar de dónde procede el puntero origen y si hubo validación previa.
-2. Reconstruir el destino: tipo, capacidad, asignación y vida del objeto.
-3. Seguir la rama exacta que se pretende explicar.
-4. Volver al ensamblador si una inferencia de tipos cambia el significado.
-5. Anotar un límite cuando falte información.
+1. Localiza una cadena del protocolo o un mensaje relacionado con la operación.
+2. Abre sus referencias y sitúa la función que la utiliza.
+3. Revisa la condición de la rama y la procedencia del dato.
+4. Sigue las llamadas y los destinos de las copias.
+5. Anota la ubicación y el contexto que necesitarás contrastar en ejecución.
 
-Una llamada sin parámetro de tamaño es una pista. No demuestra por sí sola que un destino esté en la pila o que una entrada concreta alcance ese código. El pseudocódigo es una reconstrucción, no el código fuente original.
+Una llamada de copia sin parámetro de tamaño merece atención. Para valorar el riesgo también hay que conocer la capacidad del destino y las validaciones previas.
 
-## Funcionalidad avanzada útil: vistas correlacionadas
+## Trabajar con varias vistas
 
-El caso muestra desensamblado, pseudocódigo y hexadecimal sincronizados. La combinación permite revisar si una operación inferida en pseudocódigo concuerda con las instrucciones y bytes del bloque. Guardar ubicación y contexto en la nota, porque una captura recortada puede perder los llamadores o la condición que hace accesible la copia.
+El caso muestra desensamblado, pseudocódigo y hexadecimal sincronizados. Esta combinación ayuda a comprobar si la operación reconstruida corresponde a las instrucciones del bloque.
 
-En E01 la rama observada se relaciona con `USER`. La futura comprobación de `NOOP` requiere una ruta independiente. No renombrar una función como “vulnerable_NOOP_confirmada” a partir de esa sola imagen; un nombre como “dispatcher_ftp_candidato” conserva la incertidumbre.
+El pseudocódigo puede sugerir tipos y nombres que necesitan corregirse. Si una conclusión depende de un cálculo de punteros, vuelve al ensamblador y sigue la asignación del objeto. Una expresión como `this + 28` no determina por sí sola la región de memoria donde vive el destino.
 
-## Límites y errores frecuentes
+En [E01](../evidencias/capturas/E01-ida-copia.png) se estudia la rama asociada a `USER`. La explicación de `NOOP` necesita seguir su propia ruta. Un nombre como `dispatcher_ftp_candidato` ayuda a describir el papel de la función sin dar por confirmada una relación que aún se está revisando.
 
-- Una cadena sin xrefs no significa que no se use: puede resolverse indirectamente o existir un análisis incompleto.
-- Un tipo incorrecto puede dar una falsa impresión de capacidad o de región de memoria.
-- La VA del análisis depende de la base elegida. Para cruzar con memoria cargada, registrar módulo y RVA.
-- La [página oficial de IDA Free](https://hex-rays.com/ida-free) describe un decompilador en la nube y restricciones de uso comercial. Revisar condiciones antes de cargar material confidencial o trasladar la herramienta a un encargo profesional.
-- Si F5 no está disponible, el análisis puede continuar con grafo y ensamblador. No es necesario atribuir pseudocódigo a una edición distinta de la utilizada.
+## Notas prácticas
 
-**Salida de calidad:** función candidata, ruta de datos, evidencia visual, hipótesis y validación necesaria. Véase [E01](../evidencias/README.md).
+- Guarda función, dirección y contexto junto a cada observación.
+- Una cadena sin referencias visibles puede usarse indirectamente o requerir más análisis.
+- Al pasar al depurador, relaciona la ubicación con módulo, base y RVA.
+- Si F5 no está disponible, continúa con el grafo y el ensamblador.
+- Revisa las [condiciones de IDA Free](https://hex-rays.com/ida-free) antes de trabajar con material confidencial o comercial. La página oficial describe decompilación en la nube.

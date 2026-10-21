@@ -1,44 +1,49 @@
-# Limitaciones, alcance y decisiones pendientes
+# Alcance y limitaciones
 
 [Volver al índice](../README.md)
 
-## Límites del expediente
+## Información disponible
 
-| Limitación | Consecuencia práctica | Tratamiento aplicado |
-|---|---|---|
-| No se recibió el binario original | No puede verificarse arquitectura, hash o flujo directamente | Se atribuyen esas descripciones al repositorio fuente |
-| No se accedió a la VM | No hay reproducción nueva ni inventario completo | Se habla de revisión de evidencias |
-| No se conserva aquí la entrada completa de cada sesión | El enlace entre bytes enviados y estado es parcial | Se marcan propuestas P02-P04 |
-| Capturas parciales | Pueden faltar excepción, hilo y estado previo | Se evita afirmar una cadena completa |
-| `USER` y `NOOP` son rutas distintas en el relato | La pista estática no acredita la causa dinámica | Se mantiene como hipótesis hasta trazar la ruta |
-| Tres bytes se excluyen antes de comparar | La comparación no evalúa esos valores | Se distingue exclusión preventiva de fallo demostrado |
-| Direcciones inconsistentes en el relato | No hay dirección canónica defendible | No se incluye receta de redirección |
-| Sin repetición entre reinicios | No se acredita fiabilidad | Se exige registro entre sesiones para ampliarla |
-| Indicadores de módulos incompletos | No describen toda la política del proceso | Se separan atributos PE de mitigaciones efectivas |
-| Manual completo del módulo no aportado | No se verifica pertenencia de cada herramienta al temario | El propietario debe confirmarla al enviar |
+El recurso parte de la documentación y las capturas del laboratorio. La revisión permite explicar resultados y señalar los datos necesarios para repetirlos, pero no sustituye una sesión con el binario original.
 
-## Límites de las herramientas
+En el material consultado faltan el hash del ejecutable, el inventario completo de herramientas y parte del contexto de las detenciones. Tampoco se conservan aquí las entradas exactas de todas las pruebas. Por eso la relación entre el dato enviado y el estado del proceso se apoya en el relato y las imágenes disponibles.
 
-**IDA y decompilación.** Los nombres y tipos inferidos pueden ser incorrectos. Una expresión de puntero no informa por sí sola de la capacidad del destino. El análisis estático puede omitir decisiones indirectas o reconstruir mal una condición. Volver al ensamblador y conservar la incertidumbre es parte del método.
+Las pruebas nuevas registradas en el repositorio corresponden a la utilidad local de Python. Utilizan datos sintéticos y están separadas de las evidencias de FreeFloat.
 
-**Depuración.** Pausar, continuar y adjuntar un depurador puede cambiar tiempos y estados. Las direcciones dependen de la sesión. Una detención aislada no basta para atribuir una secuencia previa que no se capturó.
+## Límites del caso
 
-**mona.** Automatiza operaciones, pero depende de la referencia, dirección y entorno que se le entreguen. Su vocabulario de salida no determina por sí mismo el significado de la prueba. El proyecto clásico está archivado; una futura migración debe validarse por separado.
+| Aspecto | Alcance de la evidencia |
+| :--- | :--- |
+| Copia observada en `USER` | Permite estudiar una operación candidata, pero la ruta `NOOP` necesita su propio seguimiento |
+| Coincidencia en el offset 246 | Se refiere al patrón y al contexto documentados |
+| Tabla de 253 bytes sin cambios | Valida la referencia comparada; no evalúa los tres valores excluidos |
+| Captura con `INT3` | Muestra una detención compatible con el relato, sin reconstruir toda la ejecución previa |
+| Direcciones del ejemplo | Presentan diferencias de representación que deben resolverse antes de reutilizarlas |
+| Estabilidad entre sesiones | No queda acreditada sin comprobaciones tras reiniciar |
+| Indicadores de módulos | No describen por sí solos todas las mitigaciones efectivas del proceso |
 
-**Python.** La utilidad local verifica representaciones y datos. No identifica vulnerabilidades, no conoce la procedencia del dump y no decide si una exclusión es correcta. Sus resultados sintéticos no se incorporan como evidencia de FreeFloat.
+El [caso práctico](03-caso-practico.md) desarrolla cada punto y enumera las comprobaciones que permitirían completar el análisis.
 
-## Mitigaciones: preguntas diferentes
+## Interpretación de las herramientas
 
-ASLR trata la disposición de direcciones; DEP restringe ejecución desde páginas de datos; CFG controla determinadas transferencias indirectas; SafeSEH se relaciona con manejadores de excepciones en los entornos aplicables. No constituyen un indicador único de “explotable/no explotable”.
+El pseudocódigo de IDA es una reconstrucción. Los tipos, nombres y expresiones pueden necesitar correcciones. Cuando una conclusión depende de la capacidad de un objeto o de su ubicación en memoria, hay que seguir también sus llamadores y revisar el ensamblador.
 
-Según la [documentación de Microsoft sobre DEP](https://learn.microsoft.com/en-us/windows/win32/memory/data-execution-prevention), el sistema puede marcar páginas como no ejecutables y una ejecución desde ellas puede generar una violación de acceso. Por ello deben distinguirse la declaración del ejecutable, la política efectiva y los permisos de la página concreta. En esta revisión no se han medido esos estados.
+El depurador muestra un instante concreto. Pausar o continuar puede cambiar el estado y los tiempos del proceso. Una captura necesita su sesión, entrada y contexto para poder interpretarse con precisión.
 
-## Límites de publicación
+mona automatiza comparaciones, pero trabaja sobre la dirección y la referencia que recibe. Un resultado correcto puede corresponder a una referencia equivocada o a otra sesión. El repositorio clásico está archivado; la migración a mona3 requiere una revisión independiente.
 
-El paquete contiene una revisión educativa de un fallo ya público. No incluye shellcode, transmisores de fuzzing, direcciones listas para reutilizar, binarios vulnerables ni un exploit final. Los registros mostrados sirven para interpretar evidencia histórica. No se publica ningún hallazgo nuevo.
+Python ayuda a comparar e identificar archivos. La utilidad incluida no conoce su procedencia ni decide si una referencia representa bien la prueba. Esa parte debe quedar explicada en el registro del análisis.
 
-No se ha asignado una licencia en nombre del usuario. La autoría y los derechos del material fuente se conservan en [AVISO-DE-USO](../AVISO-DE-USO.md). GitHub público no convierte automáticamente una captura en dominio público ni autoriza a terceros a redistribuirla.
+## Mitigaciones
 
-## Cuándo actualizar el recurso
+ASLR, DEP, CFG y SafeSEH tienen funciones distintas. La presencia o ausencia de un indicador no resume la seguridad completa del proceso.
 
-Actualizar si se obtiene el inventario original, una traza causal de la ruta correcta, una referencia nueva o una migración comprobada. Cada ampliación necesita fecha, sesión, archivos y un estado explícito. No borrar las limitaciones históricas sin añadir la evidencia que las resuelve.
+La [documentación de Microsoft sobre DEP](https://learn.microsoft.com/en-us/windows/win32/memory/data-execution-prevention) explica que el sistema puede marcar páginas como no ejecutables. Por eso conviene distinguir la declaración del ejecutable, la política efectiva y los permisos de la página que se está estudiando. Esos estados no se han medido de nuevo para esta guía.
+
+## Uso y publicación
+
+El contenido se limita a un fallo ya público, sus evidencias y ejercicios locales. Los binarios, dumps privados, credenciales y payloads finales quedan fuera del repositorio.
+
+Las capturas mantienen su atribución. Los derechos y condiciones de reutilización se describen en el [aviso de uso](../AVISO-DE-USO.md).
+
+Si se añade una prueba, conviene registrar fecha, sesión, archivos y resultado. Una limitación se puede dar por resuelta cuando se incorpora la evidencia correspondiente. Así se conserva la continuidad entre la documentación original y las ampliaciones posteriores.

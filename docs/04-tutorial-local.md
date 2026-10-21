@@ -1,87 +1,69 @@
-# Tutorial: revisar memoria y representaciones sin tocar un servicio
+# Tutorial local con Python
 
 [Volver al índice](../README.md)
 
-## Objetivo y condiciones
+Los ejercicios permiten practicar el orden de bytes, la comparación de archivos y la revisión de una dirección inicial. Utilizan datos sintéticos y funcionan sin instalar FreeFloat ni abrir conexiones de red.
 
-Este tutorial practica cuatro tareas de un analista: verificar integridad, interpretar endianness, comparar una referencia y detectar una alineación incorrecta. Usa datos sintéticos incluidos y una utilidad de la biblioteca estándar de Python. No abre sockets, no ejecuta binarios analizados y no genera una entrada de explotación.
+Necesitas Python 3.10 o posterior. Ejecuta los comandos desde la raíz del repositorio. En Windows puedes sustituir `python3` por `py -3`. Las salidas comprobadas están en [validación local](../ejemplos/VALIDACION.md).
 
-Requisito: Python 3.10 o posterior. Ejecutar desde la raíz del recurso. En Windows puede sustituirse `python3` por `py -3`. Los resultados comprobados durante la preparación están en [validación local](../ejemplos/VALIDACION.md); no deben confundirse con el laboratorio FreeFloat.
+## Leer la captura del patrón
 
-## Paso 1. Revisar la evidencia con una pregunta
+Abre [E02](../evidencias/capturas/E02-offset-246.png). La imagen contiene la orden `pattern_offset`, el valor `41326941` y la posición `246`. Esos son los datos visibles.
 
-Abre [E02](../evidencias/capturas/E02-offset-246.png) y anota tres datos: orden utilizada, valor buscado y posición devuelta. La captura permite leer `pattern_offset`, `41326941` y `246`. A continuación escribe lo que falta: archivo exacto del patrón transmitido, origen del offset y relación completa con una sesión.
+Para repetir la prueba hacen falta también el archivo del patrón transmitido, el origen desde el que se cuenta el offset y su relación con la sesión. Anota ambos grupos por separado: datos disponibles e información necesaria para reproducirlos.
 
-Esta separación evita que un dato visible termine convertido en un supuesto no declarado. No hace falta conocer una dirección de salto para extraer una conclusión útil del resultado.
-
-## Paso 2. Ejecutar la demostración sintética
+## Comprobar el orden de bytes
 
 ```console
 python3 herramientas/auditoria_local.py demo
 ```
 
-La salida JSON incluye estos resultados:
+La demostración usa el entero arbitrario `0x12345678`. Al representarlo como cuatro bytes little-endian aparece `78563412`. La conversión inversa recupera el mismo entero y el campo `ida_vuelta_correcta` devuelve `true`.
 
-| Campo | Resultado esperado | Interpretación |
-|---|---|---|
-| `clase` | `SINTETICO` | No es una prueba sobre el servidor |
-| `entero_hex` | `0x12345678` | Número elegido exclusivamente para el ejercicio |
-| `little_endian` | `78563412` | Orden en memoria de un entero de 32 bits |
-| `ida_vuelta_correcta` | `true` | Desempaquetar recupera el mismo entero |
-| `coincide_inicio_cero` | `false` | El prefijo del dump sintético desplaza el dato |
-| `coincide_inicio_dos` | `true` | La referencia empieza dos bytes después |
-| `primera_diferencia` | `3` | Índice desde cero del byte alterado en otro ejemplo |
+El número se eligió para el ejercicio y no corresponde a una dirección del laboratorio. Su utilidad está en comprobar la conversión sin tener que invertir bytes a mano.
 
-El entero elegido no corresponde a una dirección validada del laboratorio. El prefijo artificial ilustra el mismo tipo de error de alineación que puede aparecer al asumir que una tabla comienza en ESP.
+La misma demostración añade dos bytes al principio de una referencia. Por eso `coincide_inicio_cero` devuelve `false` y `coincide_inicio_dos` devuelve `true`: la secuencia está intacta, pero empieza dos posiciones después.
 
-## Paso 3. Comparar dos archivos hexadecimales
+## Comparar dos referencias
 
-Los archivos de ejemplo contienen ocho bytes cada uno. Se diferencian en el cuarto byte: índice 3 desde cero.
+Los archivos de ejemplo contienen ocho bytes cada uno. El cuarto byte se cambió a propósito, así que la primera diferencia aparece en el índice 3, contando desde cero.
 
 ```console
 python3 herramientas/auditoria_local.py compare ejemplos/referencia.hex ejemplos/observado.hex
 ```
 
-La salida indica `coinciden: false`, longitudes 8 y 8 y `primera_diferencia: 3`. El código de salida es **1**, porque se encontró una diferencia intencional. Esto no significa que la utilidad haya fallado. Un resultado idéntico devuelve 0; errores de lectura o formato devuelven 2.
+La salida devuelve `coinciden: false`, longitudes de 8 bytes y `primera_diferencia: 3`. El programa termina con código 1 para indicar que ha encontrado una diferencia.
 
-Para el control positivo:
+A continuación compara un archivo consigo mismo:
 
 ```console
 python3 herramientas/auditoria_local.py compare ejemplos/referencia.hex ejemplos/referencia.hex
 ```
 
-La diferencia de estos archivos se ha introducido artificialmente. No se puede trasladar a una lista de bad characters de FreeFloat. Precisamente ese salto entre datos sintéticos y resultado real es lo que este tutorial enseña a evitar.
+En este caso la coincidencia es completa y el código de salida es 0. Los errores de lectura, formato o tamaño devuelven 2.
 
-## Paso 4. Calcular el hash de una captura
+La diferencia de estos ejemplos es artificial. No aporta información sobre los bad characters de FreeFloat; sirve para aprender a interpretar una comparación y distinguir una diferencia de un error del programa.
+
+## Revisar la integridad de una captura
 
 ```console
 python3 herramientas/auditoria_local.py hash evidencias/capturas/E02-offset-246.png
 ```
 
-Compara el SHA-256 con el [manifiesto](../evidencias/manifiesto.json) o con [SHA256SUMS](../SHA256SUMS.txt). El hash acredita que ambos archivos contienen los mismos bytes a efectos prácticos de integridad. No acredita fecha de captura, autoría, corrección de un razonamiento o ausencia de edición anterior.
+Compara el SHA-256 obtenido con el [manifiesto](../evidencias/manifiesto.json) o con [SHA256SUMS](../SHA256SUMS.txt). La utilidad muestra nombre, tamaño y hash del archivo.
 
-La utilidad muestra solo nombre de archivo, tamaño y hash. Para evitar filtraciones, tampoco imprime contenido de los archivos comparados ni vuelca memoria. No pases rutas confidenciales a herramientas ajenas sin revisar antes cómo registran sus argumentos.
+Si los hashes coinciden, la copia corresponde a los mismos bytes registrados. Esto ayuda a identificar el material revisado, aunque la fecha, la autoría y el contexto de la captura se documentan por separado.
 
-## Paso 5. Revisar el resultado histórico de mona
+## Interpretar la comparación de mona
 
-Abre [E05](../evidencias/capturas/E05-comparacion.png). Identifica longitud de referencia, dirección de comparación y exclusiones. Redacta una conclusión con cuatro componentes:
+En [E05](../evidencias/capturas/E05-comparacion.png) se observa una referencia de 253 bytes, una dirección de comparación, tres exclusiones y el resultado `Unmodified`.
 
-> En E05, mona compara una referencia de 253 bytes en una dirección concreta y devuelve `Unmodified`. Esto respalda que la referencia comparada coincide en esa prueba. Los bytes excluidos no se han contrastado mediante ese resultado. La alineación debe verificarse de nuevo en otra sesión.
+El resultado respalda que los bytes de esa referencia coinciden en la ubicación utilizada. Los valores excluidos no se han evaluado mediante esa comparación. Para otra sesión hay que localizar de nuevo el inicio de la tabla antes de comparar.
 
-El objetivo no es copiar la frase, sino comprobar que cada parte se apoya en un dato y no en una costumbre del laboratorio.
+El ejercicio del prefijo ayuda a entender la importancia de ese paso: una referencia correcta puede producir diferencias si la lectura comienza antes o después de su posición real.
 
-## Paso 6. Crear un miniinforme
+## Guardar los resultados
 
-Usa la [plantilla de informe](../plantillas/informe.md) con este alcance: «Revisión documental de E02 y E05, más ejercicios sintéticos locales». Registra comandos realmente ejecutados, resultados y limitaciones. No marques como realizada una prueba simplemente porque esta entrega incluye una salida de ejemplo.
+La [plantilla de informe](../plantillas/informe.md) permite registrar los comandos ejecutados, la salida y el alcance. Para estos ejercicios basta con identificar la revisión de E02 y E05 y las pruebas sintéticas locales.
 
-## Ampliación propuesta para un laboratorio autorizado
-
-Si más adelante se dispone de la VM y los artefactos originales, la primera ampliación útil es inventariar y conservar la entrada exacta, no construir un payload final. El siguiente paso consiste en relacionar la rama de protocolo con la operación de memoria y guardar registros, dump y salida de mona de la misma sesión. Estas ampliaciones permanecen pendientes en esta entrega.
-
-## Preguntas de autoevaluación
-
-1. ¿Por qué una tabla intacta puede parecer corrupta? Porque se compara desde una dirección equivocada o con otra referencia.
-2. ¿Qué demuestra `Unmodified`? Coincidencia del conjunto y la ubicación comparados, dentro del contexto de esa prueba.
-3. ¿Qué falta para reproducir el offset? Patrón y entrada exactos, origen de la medida y mismo contexto de ejecución.
-4. ¿Un hash demuestra que un crash ocurrió? No; solo ayuda a identificar el archivo que se está revisando.
-5. ¿EIP con un marcador equivale a una shell? No; son afirmaciones de alcance distinto.
+En una futura sesión con la VM original, convendría empezar por guardar el inventario, la entrada exacta y los registros del mismo instante. Esa información permitiría relacionar el resultado de mona con la ruta de código y con el estado del proceso.

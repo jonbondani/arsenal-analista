@@ -1,116 +1,117 @@
-# Caso práctico: revisión técnica del laboratorio FreeFloat
+# Caso práctico: FreeFloat FTP Server
 
 [Volver al índice](../README.md)
 
-## Alcance y fuentes
+## Punto de partida
 
-El caso procede de [jonbondani/CVE-2025-5548](https://github.com/jonbondani/CVE-2025-5548), fijado para esta revisión en el commit [`6c302ee05599ce34dae0892f8678bed802879dab`](https://github.com/jonbondani/CVE-2025-5548/tree/6c302ee05599ce34dae0892f8678bed802879dab), fechado el 20 de octubre de 2026. Se consultaron su README, la documentación del entorno y la metodología de explotación. Las capturas seleccionadas se describen en el [registro](../evidencias/README.md).
+El caso utiliza la documentación de [jonbondani/CVE-2025-5548](https://github.com/jonbondani/CVE-2025-5548), en el commit [`6c302ee05599ce34dae0892f8678bed802879dab`](https://github.com/jonbondani/CVE-2025-5548/tree/6c302ee05599ce34dae0892f8678bed802879dab), del 20 de octubre de 2026. La [ficha de NVD](https://nvd.nist.gov/vuln/detail/CVE-2025-5548) relaciona FreeFloat FTP Server 1.0 con un buffer overflow asociado a `NOOP`.
 
-La ficha [NVD](https://nvd.nist.gov/vuln/detail/CVE-2025-5548) identifica FreeFloat FTP Server 1.0 y un buffer overflow asociado al componente `NOOP Command Handler`. Se usa como contexto de una vulnerabilidad ya pública. No se deduce un CVE nuevo, una ruta adicional confirmada ni un impacto propio superior al demostrado.
+La guía revisa las capturas y el relato de ese laboratorio. No se ha repetido la ejecución del servidor al elaborar esta documentación. Las comprobaciones locales de Python se explican en otro apartado y utilizan datos sintéticos.
 
-**Método de esta entrega:** revisión documental, visual y comprobaciones locales con datos sintéticos. No se recibió el binario original ni se accedió a la VM. No se ejecutaron scripts del repositorio contra el servicio. Las pruebas históricas siguen siendo pruebas documentadas por su autor, no reproducciones de esta revisión.
+El [registro de evidencias](../evidencias/README.md) recoge la procedencia de cada imagen. Los archivos se conservaron sin editar y se comprobaron contra el commit citado.
 
-## 1. Entorno y arquitectura
+## Entorno
 
-La [guía fuente del entorno](https://github.com/jonbondani/CVE-2025-5548/blob/6c302ee05599ce34dae0892f8678bed802879dab/01-Environment/README.md) describe Windows 11 en VirtualBox, una instalación asistida por un script docente y un snapshot. La metodología carga el programa como PE 80386 y muestra registros EIP/ESP, coherentes con un proceso x86.
+La [documentación del entorno](https://github.com/jonbondani/CVE-2025-5548/blob/6c302ee05599ce34dae0892f8678bed802879dab/01-Environment/README.md) describe Windows 11 en VirtualBox y un snapshot después de instalar las herramientas. La metodología carga el binario como PE 80386 y las imágenes muestran EIP y ESP, coherentes con un proceso x86.
 
-La conclusión útil es que el análisis de esos registros debe hacerse con palabras de cuatro bytes. No puede deducirse el inventario exacto del entorno: faltan hash del ejecutable, build del sistema, versiones completas de Immunity/mona y política efectiva de memoria. Tampoco se ha verificado la topología de red de aquella VM.
+Para repetir exactamente el laboratorio harían falta algunos datos más: el hash del ejecutable, la build de Windows, las versiones completas de Immunity y mona y la configuración efectiva de memoria y red. El nombre del programa y su versión comercial no identifican por sí solos una muestra concreta.
 
-## 2. IDA: encontrar una copia y acotar la hipótesis
+## La copia localizada en IDA
 
-La documentación sigue cadenas del protocolo, referencias cruzadas y la función `sub_402190`. E01 contiene pseudocódigo con una llamada `strcpy` en una rama asociada al tratamiento de `USER`.
+El análisis original sigue cadenas del protocolo y sus referencias hasta `sub_402190`. En E01 aparece pseudocódigo con una llamada `strcpy` en la rama descrita como `USER`.
 
-![E01: pseudocódigo de IDA con una copia y vistas sincronizadas](../evidencias/capturas/E01-ida-copia.png)
+![E01: copia localizada en el pseudocódigo de IDA](../evidencias/capturas/E01-ida-copia.png)
 
-**Observación:** se ve una operación de copia cuyo prototipo no recibe capacidad de destino. **Interpretación:** merece revisar la procedencia de la entrada, validaciones previas y capacidad real del destino. **Límite:** el pseudocódigo no demuestra por sí solo el tamaño ni la región de memoria del objeto apuntado por `this`, ni la relación causal con una ejecución posterior en otra rama.
+La llamada merece revisarse porque no recibe la capacidad del destino. Para determinar si esa copia puede escribir fuera de sus límites hay que reconstruir el origen del dato, la capacidad real del destino y las validaciones anteriores.
 
-La expresión `this + 28` no debe traducirse automáticamente como «buffer local en la pila». Para decidirlo hay que reconstruir asignación y vida del objeto, tipos, llamadores y acceso real en ensamblador. La ausencia de comprobación en una línea aislada tampoco prueba que no exista una validación previa.
+La expresión `this + 28` tampoco permite afirmar por sí sola que el destino sea una variable local en la pila. Hay que seguir la asignación del objeto y sus llamadores, y contrastar los tipos del pseudocódigo con las instrucciones.
 
-El caso fuente pasa después a entradas `NOOP` o comandos no reconocidos y a la construcción de una respuesta de error. Esa diferencia es relevante: localizar una copia en `USER` no identifica de forma concluyente la operación responsable del fallo que se atribuye a `NOOP`.
+Más adelante, el laboratorio trabaja con `NOOP` o comandos no reconocidos y menciona la construcción de una respuesta de error. Esa ruta debe estudiarse por separado. La copia observada en `USER` es una pista estática, pero no basta para identificar la operación responsable del crash asociado a `NOOP`.
 
-**Comprobación propuesta, no realizada:** en una sesión autorizada, seguir la rama exacta desde el parseo hasta la construcción de la respuesta y registrar la instrucción que escribe fuera del destino, su origen, capacidad y pila de llamadas. El resultado debería explicar el mismo crash sin combinar rutas diferentes.
+La comprobación que falta consiste en seguir esa entrada desde el parseo hasta la escritura que corrompe memoria, conservando la capacidad del destino, el origen de los bytes y la pila de llamadas de una misma sesión.
 
-## 3. Timeout, excepción y marcador
+## Del timeout al estado de EIP
 
-El relato fuente describe aumentos de longitud, un timeout y registros con un valor repetido. Un timeout por sí mismo puede significar que el proceso está pausado bajo el depurador, que el servicio dejó de responder o que existe un problema de red. La evidencia de memoria aporta más información que el síntoma de red.
+El relato describe un aumento de longitud en las entradas, seguido de un timeout. Ese síntoma puede aparecer si el proceso está pausado, si se produce una excepción o si hay un problema de comunicación. El contexto del depurador permite distinguir esas situaciones.
 
-E03 muestra EIP = `42424242`, compatible con los bytes ASCII del marcador `BBBB` descrito en la documentación.
+E03 muestra EIP con el valor `42424242`, compatible con el marcador `BBBB` descrito en la prueba.
 
-![E03: registro EIP con el marcador 42424242](../evidencias/capturas/E03-eip-marcador.png)
+![E03: EIP con el valor 42424242](../evidencias/capturas/E03-eip-marcador.png)
 
-**Conclusión acotada:** la imagen es coherente con influencia de una entrada sobre el valor de EIP en esa sesión. No demuestra control de cualquier valor posible: algunos bytes pueden truncarse o transformarse. Tampoco demuestra privilegios, persistencia, ejecución de órdenes o repetibilidad.
+La imagen encaja con una influencia de la entrada sobre EIP en esa sesión. Para reconstruir la relación completa también harían falta la entrada exacta, la excepción, el hilo y el estado anterior a la transferencia.
 
-Para defender una conclusión más fuerte harían falta entrada exacta y su hash, identidad del proceso, excepción, hilo, contexto previo a la transferencia y repetición controlada. La captura es útil, pero no contiene todo ese expediente.
+Además, un marcador reconocible no demuestra que cualquier valor de cuatro bytes llegue igual. El protocolo o las funciones de cadena pueden tratar algunos valores de forma distinta. La ejecución de órdenes, los privilegios y la repetibilidad requieren evidencias adicionales.
 
-## 4. Offset: qué significa realmente 246
+## El offset 246
 
-E02 contiene la orden `!mona pattern_offset 41326941` y una coincidencia en la posición 246.
+E02 recoge la consulta `!mona pattern_offset 41326941` y una coincidencia en la posición 246.
 
-![E02: mona encuentra una coincidencia en la posición 246](../evidencias/capturas/E02-offset-246.png)
+![E02: coincidencia de patrón en la posición 246](../evidencias/capturas/E02-offset-246.png)
 
-En x86 little-endian, el entero `0x41326941` corresponde en memoria a los bytes `41 69 32 41`, legibles como `Ai2A`. Eso explica la coincidencia de mona; no es un cambio de patrón.
+En x86 little-endian, el valor `0x41326941` corresponde a los bytes `41 69 32 41`, que se leen como `Ai2A`. Esa diferencia entre el entero y el orden de sus bytes explica la salida de mona.
 
-La posición debe expresarse con su convención: offset **246 contado desde cero** respecto al patrón consultado. Cuatro bytes a partir de ese offset ocupan los índices 246 a 249. En numeración humana de posiciones desde uno, son 247 a 250. No son 246 bytes de capacidad del buffer: entre el inicio del dato y el estado sobrescrito puede haber otros campos, prefijos o transformaciones.
+El offset se cuenta desde cero respecto al patrón consultado. Los cuatro bytes que empiezan en el índice 246 ocupan los índices 246 a 249. Si se numeran las posiciones desde uno, corresponden a las posiciones 247 a 250.
 
-La búsqueda interna que aparece en la salida no implica que esa longitud interna se enviara por red. La metodología fuente menciona un patrón de 400 bytes y mona consulta su espacio de búsqueda. Para reproducir la relación habría que conservar el patrón realmente empleado y la entrada completa, incluidos comando, espacios y terminación de línea.
+Este dato no indica que el buffer tenga una capacidad de 246 bytes. Puede haber otros campos, prefijos o transformaciones entre el comienzo del dato y la posición sobrescrita. Para reutilizar la medida hay que conservar el patrón y la entrada completos, incluidos el comando, los espacios y el final de línea.
 
-**Lección transferible:** un offset siempre necesita un origen. Escribir «246 desde el inicio del patrón de esa prueba» evita que otro analista lo aplique a todo el mensaje FTP o a una rama distinta.
+La metodología menciona un patrón de 400 bytes. La longitud de búsqueda interna que aparece en la salida de mona no significa que se transmitiera esa misma cantidad de datos por red.
 
-## 5. Comparación de bytes: la dirección importa
+## Alineación y comparación de bytes
 
-La fuente describe una tabla que excluye previamente `00`, `0a` y `0d`. E04 muestra un dump que comienza visualmente con `09` en la dirección de referencia del relato. E05 compara una tabla de 253 bytes en otra dirección y devuelve `Unmodified`.
+La referencia descrita en el caso excluye `00`, `0a` y `0d`. Al partir de 256 valores posibles quedan 253 bytes para comparar.
 
-![E04: dump de memoria para revisar la alineación](../evidencias/capturas/E04-dump-alineacion.png)
+E04 muestra parte del dump y E05 recoge una comparación con el resultado `Unmodified`.
 
-![E05: mona compara 253 bytes y devuelve Unmodified](../evidencias/capturas/E05-comparacion.png)
+![E04: secuencia de bytes en memoria](../evidencias/capturas/E04-dump-alineacion.png)
 
-El relato establece que se usó una dirección ocho bytes anterior a ESP. La captura de comparación muestra una dirección concreta, pero no basta para generalizar «usar siempre ESP - 8». Hay que localizar el principio de la tabla en cada detención. E04 y E05 se entienden junto al relato; no deben tratarse como un dump íntegro o una traza completa de la misma ejecución.
+![E05: comparación de una referencia de 253 bytes](../evidencias/capturas/E05-comparacion.png)
 
-La tabla se obtiene de 256 valores posibles menos tres exclusiones: 253 bytes. Si esos bytes coinciden, la interpretación defendible es que **no se detectaron modificaciones adicionales en la referencia comparada, en esa ubicación y en esa prueba**. Los tres bytes excluidos nunca se contrastaron en esa comparación: no se ha demostrado individualmente su comportamiento.
+El relato sitúa el inicio de la tabla ocho bytes antes de ESP. Ese ajuste corresponde a la prueba descrita. En otra detención hay que localizar de nuevo el primer byte de la secuencia, porque ESP puede apuntar al interior del dato.
 
-El mensaje de mona contiene la palabra “shellcode”, pero aquí se describe el resultado de comparar bytes. Esa etiqueta de la herramienta no acredita que hubiera shellcode funcional o que se ejecutara.
+La captura de comparación contiene una dirección concreta, pero no reconstruye por sí sola toda la sesión. Las dos imágenes se interpretan junto a la documentación, sin unirlas como si fueran un dump completo del mismo instante.
 
-Una mala alineación genera diferencias aparentes en casi toda una tabla intacta. El [ejercicio local](04-tutorial-local.md) reproduce ese error con ocho bytes sintéticos para aprender a diagnosticarlo sin provocar un crash.
+El resultado permite afirmar que la referencia comparada coincide en esa ubicación y en esa prueba. Los tres bytes excluidos no formaban parte de la comparación, de modo que su comportamiento individual sigue sin quedar demostrado por esa salida.
 
-## 6. Direcciones, módulos y fiabilidad
+El mensaje de mona utiliza la palabra “shellcode”. En este contexto describe una comparación de bytes; no acredita que se haya ejecutado shellcode funcional.
 
-La sección histórica de salto a pila presenta tres representaciones incompatibles: una dirección en la prosa, otra secuencia literal de bytes y otra en la captura del script. Esto impide documentar una única dirección validada a partir del relato. Esta entrega no las convierte en una receta ni copia el script.
+Una dirección inicial equivocada puede hacer que una tabla intacta parezca modificada. El [tutorial local](04-tutorial-local.md) reproduce ese problema con un prefijo sintético, sin provocar un crash ni conectarse a un servidor.
 
-E06 sí muestra una instrucción `INT3` en la posición indicada por EIP. Eso es compatible con una prueba de interrupción en la sesión documentada; no muestra toda la cadena que llevó hasta ella.
+## Direcciones y detención en INT3
 
-![E06: EIP coincide visualmente con una instrucción INT3](../evidencias/capturas/E06-int3.png)
+La sección original de salto a pila contiene diferencias entre la dirección escrita en la prosa, la secuencia de bytes y la captura del script. Con ese material no se puede fijar una única representación validada. La guía conserva la observación y evita convertir esas direcciones en instrucciones reutilizables.
 
-Encontrar una secuencia de opcodes en memoria no garantiza que pertenezca a una página ejecutable, a una instrucción válida en el modo correcto o a un módulo estable. Una dirección virtual aislada carece de contexto sin módulo, base, RVA, versión y configuración del proceso.
+E06 muestra EIP sobre una posición que se decodifica como `INT3`.
 
-La fuente interpreta determinados indicadores de mona como ausencia de protecciones modernas. Esa conclusión es excesiva: `NXCompat = False` no decide por sí solo la política DEP efectiva, SafeSEH se relaciona con manejadores de excepciones y no todas las mitigaciones responden a la misma pregunta. Que un módulo no declare ASLR tampoco prueba estabilidad universal en cualquier sistema.
+![E06: EIP sobre una instrucción INT3](../evidencias/capturas/E06-int3.png)
 
-**Comprobación propuesta, no realizada:** registrar módulos y permisos de memoria en sesiones identificadas, conservar base y RVA y verificar el comportamiento tras reinicios. En esta entrega no se diseña una evasión de mitigaciones ni se valida una dirección reutilizable.
+La captura es compatible con la detención descrita en el laboratorio. Aun así, no muestra todos los pasos anteriores ni permite medir la estabilidad entre reinicios. También conviene registrar si la interrupción estaba en el dato de prueba o si la insertó el depurador.
 
-## 7. Informe de conclusiones
+Una secuencia de opcodes encontrada en memoria necesita más contexto: módulo, base, RVA, versión, modo de ejecución y permisos de la página. Encontrarla una vez no garantiza que la misma dirección sirva en otra sesión.
 
-| Conclusión | Soporte | Reserva |
-|---|---|---|
-| El caso es un laboratorio de una vulnerabilidad FTP ya pública | Repositorio y NVD | La atribución externa no demuestra el estado de una copia local |
-| Hay una copia que merece revisión en la rama `USER` | E01 | No equivale a la causa demostrada del fallo `NOOP` |
-| mona identifica una posición 246 en el patrón consultado | E02 | Origen y configuración importan |
-| EIP presenta el marcador descrito por el autor | E03 | No prueba un conjunto ilimitado de valores ni ejecución arbitraria |
-| La referencia de 253 bytes resulta sin cambios | E05 | No cubre bytes omitidos ni todas las rutas |
-| Se documenta una detención compatible con `INT3` | E06 | Cadena causal y estabilidad entre sesiones incompletas |
-| Existe un exploit final validado en esta revisión | Ninguno | No se afirma |
+## Mitigaciones y estabilidad
 
-El README histórico usa una etiqueta de “Finalizado”, pero sus apartados 6 y 7 siguen pendientes en la versión consultada. Ese estado editorial no aporta evidencia adicional. La entrega de este recurso puede estar preparada aunque el laboratorio fuente no documente una cadena de explotación completa.
+Los indicadores del módulo responden a cuestiones diferentes. ASLR afecta a la disposición de direcciones; DEP limita la ejecución desde determinadas páginas; CFG controla ciertas transferencias indirectas; SafeSEH se relaciona con manejadores de excepciones en los entornos aplicables.
 
-## 8. Backlog verificable
+Por eso, `NXCompat = False` no basta para afirmar que DEP está desactivado. Hay que comprobar la política efectiva y los permisos de la memoria concreta. Del mismo modo, la ausencia de una declaración de ASLR no demuestra estabilidad universal en cualquier sistema.
 
-| ID | Propuesta pendiente | Criterio de aceptación |
-|---|---|---|
-| P01 | Inventariar la muestra original | Hash, origen autorizado y arquitectura verificada |
-| P02 | Trazar la ruta asociada a `NOOP` | Parseo, copia efectiva, capacidad y pila de llamadas de la misma sesión |
-| P03 | Conservar entrada y patrón | Archivos exactos, hash y convención del offset |
-| P04 | Documentar el punto inicial de comparación | Dump con inicio y longitud de la tabla, registros del mismo instante |
-| P05 | Precisar las exclusiones | Diferenciar exclusión preventiva de resultado observado; no declarar pruebas inexistentes |
-| P06 | Resolver incoherencia de direcciones | Una representación canónica, módulo, base, RVA y correspondencia de bytes |
-| P07 | Evaluar repetibilidad | Sesiones independientes con reinicio y resultados registrados |
-| P08 | Publicar el recurso documental | Revisión y autorización del propietario, URL accesible sin autenticación |
+Para ampliar esa parte del laboratorio se necesitarían sesiones identificadas, un inventario de módulos y una comparación de bases y RVA tras reiniciar. Esas comprobaciones no están documentadas aquí como realizadas.
 
-P01-P07 aumentan la fuerza del expediente histórico; no son requisitos para ejecutar los ejercicios locales ni se presentan como tareas ya realizadas.
+## Resultado de la revisión
+
+Las capturas permiten estudiar una copia candidata en IDA, una coincidencia de patrón, EIP con un marcador, una comparación de memoria y una detención compatible con `INT3`.
+
+La explicación completa de la ruta `NOOP`, la reproducción exacta y la estabilidad de las direcciones necesitan más información. El README original utiliza la etiqueta “Finalizado”, aunque los apartados de shellcode y exploit final siguen pendientes en la versión consultada. Esa etiqueta describe el estado editorial del repositorio y no añade resultados técnicos.
+
+## Continuación del análisis
+
+Las siguientes comprobaciones permitirían completar el registro del laboratorio:
+
+- **Identificar la muestra:** guardar hash, origen y arquitectura confirmada.
+- **Seguir la ruta `NOOP`:** conservar parseo, operación de copia, capacidad del destino y pila de llamadas de la misma sesión.
+- **Preservar las entradas:** guardar el patrón y el mensaje completos, junto al origen del offset.
+- **Documentar la comparación:** registrar inicio, longitud, referencia y registros del mismo instante.
+- **Precisar las exclusiones:** separar decisiones preventivas de comportamientos observados.
+- **Resolver las direcciones:** relacionar una representación coherente con módulo, base y RVA.
+- **Comprobar repetibilidad:** repetir en sesiones independientes y registrar los cambios tras reiniciar.
+
+Son ampliaciones del caso original. El tutorial de Python puede seguirse con los archivos incluidos, sin completar estas pruebas.

@@ -1,53 +1,55 @@
-# Ficha reutilizable de sesión
+# Ficha de sesión
 
-> Plantilla vacía. Completar solo con acciones y resultados reales. Una casilla vacía no indica que la entrega haya realizado esa prueba.
+Completa esta ficha al preparar y cerrar una prueba. Si falta un dato, indícalo en observaciones para poder recuperarlo después.
 
-## Identidad y autorización
+## Datos generales
 
-| Campo | Valor |
-|---|---|
-| ID de sesión | Pendiente |
-| Analista y participantes reales | Pendiente |
-| Fecha, hora y zona | Pendiente |
-| Pregunta de análisis | Pendiente |
-| Alcance y autorización | Pendiente |
-| Condiciones de parada | Pendiente |
-| Destino autorizado del informe | Pendiente |
+- **ID de sesión:**
+- **Analista y participantes:**
+- **Fecha, hora y zona horaria:**
+- **Objetivo:**
+- **Alcance y autorización:**
+- **Condiciones de parada:**
+- **Destino de los resultados:**
 
-## Inventario
+## Muestra y entorno
 
-| Artefacto o componente | Origen/versión | Hash o identificador | Estado |
-|---|---|---|---|
-| Muestra | Pendiente | Pendiente | No inventariada |
-| Arquitectura del proceso | Pendiente | Cabecera o evidencia pendiente | No confirmada |
-| Sistema y VM | Pendiente | Build/snapshot pendiente | No inventariado |
-| Depurador | Pendiente | Pendiente | No inventariado |
-| Herramienta estática | Pendiente | Pendiente | No inventariada |
-| Plugin e intérprete embebido | Pendiente | Pendiente | No inventariados |
-| Python externo | Pendiente | Pendiente | No inventariado |
-| Entrada/referencia | Pendiente | Pendiente | No preservada |
+- **Nombre y origen de la muestra:**
+- **SHA-256:**
+- **Arquitectura confirmada:**
+- **Sistema y build:**
+- **VM, snapshot y configuración de red:**
+- **Herramienta de análisis estático y versión:**
+- **Depurador y versión:**
+- **Plugin, versión e intérprete embebido:**
+- **Python externo y versión:**
+- **Entrada y referencia utilizadas, con sus hashes:**
 
-## Bitácora
+## Registro de acciones
 
-| Hora | Acción realmente realizada | Artefacto de entrada | Resultado | Evidencia |
-|---|---|---|---|---|
-| Pendiente | Pendiente | Pendiente | Pendiente | Pendiente |
+| Hora | Acción | Archivo de entrada | Resultado | Evidencia |
+| :--- | :--- | :--- | :--- | :--- |
+| | | | | |
 
-## Contexto de detención, si existe
+Añade una fila por operación relevante. Si cambia el entorno o la entrada, déjalo anotado antes de continuar.
 
-- Proceso e hilo: pendiente.
-- Código/tipo de excepción: pendiente.
-- Registros: pendiente.
-- Dirección de acceso e instrucción: pendiente.
-- Módulo, base, RVA y permisos relevantes: pendiente.
-- Referencia, longitud y dirección inicial comparada: pendiente.
-- Relación entre esta detención y la entrada exacta: pendiente.
+## Estado de la detención
+
+- **Proceso e hilo:**
+- **Tipo y código de excepción:**
+- **Registros relevantes:**
+- **Instrucción y dirección de acceso:**
+- **Módulo, base, RVA y permisos:**
+- **Referencia comparada, longitud y dirección inicial:**
+- **Relación con la entrada exacta:**
 
 ## Cierre
 
-- Hechos observados: pendiente.
-- Interpretaciones con soporte: pendiente.
-- Hipótesis no confirmadas: pendiente.
-- Datos faltantes y condición de aceptación: pendiente.
-- Revisión de privacidad y derechos: pendiente.
-- Ruta del expediente privado y versión pública: pendiente; no publicar rutas sensibles.
+- **Resultados observados:**
+- **Interpretación y evidencias que la respaldan:**
+- **Explicaciones que falta comprobar:**
+- **Datos que faltan y próxima comprobación:**
+- **Revisión del material que se va a compartir:**
+- **Versión de los archivos guardados:**
+
+Mantén las rutas privadas y los datos sensibles fuera de la copia pública.

@@ -1,48 +1,50 @@
-# Cheatsheet comentada: Immunity Debugger
+# Cheatsheet de Immunity Debugger
 
-[Índice](../README.md) · [Troubleshooting](../docs/07-troubleshooting.md)
+[Índice](../README.md) · [Resolución de problemas](../docs/07-troubleshooting.md)
 
-**Pregunta principal:** ¿qué estado tiene este proceso en este instante?  
-**Uso en el caso:** registros x86, pila, dump y detenciones documentadas.  
-**Estado:** revisión de capturas existentes; no se ejecutó el depurador durante esta preparación.
+Immunity se utiliza en el laboratorio para examinar un proceso x86 detenido. Las vistas de registros, pila y memoria permiten interpretar el estado que queda después de una prueba.
 
 ## Operaciones habituales
 
-| Acción | Operación orientativa | Utilidad | Precaución |
-|---|---|---|---|
-| Abrir proceso autorizado | `File > Open` o `File > Attach` | Obtener contexto dinámico | Confirmar proceso y arquitectura |
-| Continuar | `F9` en la configuración habitual | Reanudar hasta la siguiente detención | No continuar antes de guardar la evidencia relevante |
-| Paso dentro | `F7` | Entrar en una llamada | Puede cambiar mucho el contexto y producir ruido |
-| Paso sobre llamada | `F8` | Observar el efecto de una llamada | Una llamada puede no retornar o alterar estado |
-| Breakpoint de software | `F2` sobre una instrucción, habitualmente | Detener antes de una operación conocida | Registrar si el breakpoint fue insertado por el analista |
-| Seguir en dump | Menú contextual del registro o dirección | Ver los bytes reales | No confundir representación ASCII con bytes |
-| Revisar pila | Vista de stack y registros | Relacionar punteros con memoria | La pila es específica del hilo y del instante |
+| Operación | Acceso orientativo | Uso |
+| :--- | :--- | :--- |
+| Abrir o adjuntar | `File > Open` o `File > Attach` | Seleccionar el proceso autorizado |
+| Continuar | Habitualmente `F9` | Reanudar hasta la siguiente detención |
+| Paso dentro | Habitualmente `F7` | Entrar en una llamada |
+| Paso sobre llamada | Habitualmente `F8` | Observar el efecto sin entrar paso a paso |
+| Breakpoint de software | Habitualmente `F2` sobre la instrucción | Detenerse en una ubicación concreta |
+| Seguir en dump | Menú contextual del registro o dirección | Revisar los bytes de memoria |
+| Examinar la pila | Vista de stack y registros | Relacionar punteros y contenido del hilo |
 
-Confirmar atajos en la instalación histórica. La comparación con otras herramientas no implica que compartan todos los menús o plugins.
+Comprueba los atajos en la instalación utilizada. Guarda el contexto antes de continuar, porque reanudar puede cambiar el estado que se está analizando.
 
-## Datos mínimos al detenerse
+## Datos que conviene conservar
 
-| Campo | Razón |
-|---|---|
-| Sesión, hora y acción previa | Vincular la captura con una prueba |
-| Proceso, hilo y arquitectura | Evitar mezclar contexto |
-| Tipo/código de excepción | Distinguir acceso inválido, breakpoint y otras detenciones |
-| EIP, ESP y EBP | Orientar la inspección x86 |
-| Instrucción en EIP y bytes | Revisar si la decodificación es coherente |
-| Dirección de acceso y operación, si constan | Separar lectura, escritura y ejecución |
-| Módulos y permisos relevantes | Interpretar estabilidad y ejecutabilidad |
-| Entrada o referencia con hash | Mantener trazabilidad sin copiar secretos al informe |
+- Identificador de sesión, hora y acción previa.
+- Proceso, hilo y arquitectura.
+- Tipo y código de excepción.
+- EIP, ESP y EBP en el análisis x86.
+- Instrucción y bytes en la posición de EIP.
+- Dirección y tipo de acceso, si aparecen en la excepción.
+- Módulos y permisos relevantes.
+- Entrada y referencia de la prueba, identificadas por hash.
 
-## Interpretaciones que deben acotarse
+## Interpretar un marcador en EIP
 
-`EIP = 42424242` es compatible con el marcador `BBBB`. Para atribuirlo a una entrada concreta hay que relacionar sesión, datos y estado. Un valor repetido no acredita por sí solo acceso con privilegios ni una ejecución de órdenes.
+El valor `42424242` es compatible con los bytes de `BBBB`. Para relacionarlo con una entrada concreta hay que conservar el contexto de esa prueba. La captura muestra un estado, mientras que la entrada y la secuencia de acciones explican cómo se llegó a él.
 
-ESP contiene una dirección de la pila, no una etiqueta del inicio de todos los datos de prueba. Los prólogos, epílogos, llamadas y convenciones de llamada pueden desplazar su relación con el contenido. En el caso, la fuente describe una comparación ocho bytes anterior a ESP; eso no es una regla del depurador.
+También hay que tener en cuenta los valores que el protocolo puede truncar o transformar. Ver un marcador no demuestra que todos los bytes se puedan utilizar de la misma manera.
 
-`INT3` puede aparecer por un breakpoint del analista, por bytes ya presentes o por una prueba documentada. La imagen E06 permite ubicar la instrucción y EIP, pero no prueba toda la secuencia de ejecución. Debe registrarse si el breakpoint fue insertado por el depurador o estaba en el dato analizado.
+## Localizar datos desde ESP
 
-## Cuándo detener el diagnóstico
+ESP puede apuntar al interior de la secuencia que interesa comparar. Las llamadas y los cambios de pila afectan a esa relación. Localiza el inicio real en el dump antes de utilizar una dirección como referencia.
 
-Si no se puede relacionar la captura con la entrada o si el proceso es otro, marcar evidencia insuficiente y volver al inventario. Si se alcanza un estado distinto del previsto, guardar contexto antes de cambiar configuraciones. No resolver diferencias desactivando protecciones sin documentar que se ha creado un entorno diferente.
+El laboratorio describe una comparación ocho bytes antes de ESP. Es un dato de aquella prueba y necesita verificarse de nuevo si cambia el contexto.
 
-Para otro caso moderno, evaluar x32dbg/x64dbg o WinDbg según arquitectura y objetivo. La sustitución queda como propuesta; no se ha probado compatibilidad del flujo de Immunity en este paquete.
+## Registrar una detención en INT3
+
+Anota si la interrupción estaba en los datos de prueba o si se insertó como breakpoint desde el depurador. Conserva también el estado anterior cuando sea posible. La captura [E06](../evidencias/capturas/E06-int3.png) permite leer la instrucción y EIP, aunque no contiene toda la ejecución previa.
+
+Si una prueba llega a un estado diferente del esperado, guarda los datos antes de cambiar configuraciones. Un cambio de protecciones crea otras condiciones de análisis y debe quedar registrado.
+
+Para otros procesos o arquitecturas se pueden valorar x32dbg, x64dbg o WinDbg. La [comparativa](../docs/05-comparativa.md) explica esas opciones; el flujo de este caso no se ha repetido con ellas.

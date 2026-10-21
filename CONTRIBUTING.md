@@ -1,16 +1,18 @@
 # Cómo contribuir
 
-Las contribuciones deben mejorar la capacidad de otro analista para comprender y verificar el recurso.
+Las correcciones y ampliaciones deben ayudar a que otra persona pueda seguir el análisis y comprobar sus resultados.
 
-1. Identificar qué documento y afirmación se modifican.
-2. Aportar fuente primaria o evidencia autorizada con procedencia.
-3. Etiquetar resultado histórico, reproducción propia, interpretación o propuesta.
-4. Registrar entorno y versión si se afirma compatibilidad de una herramienta.
-5. Revisar privacidad, derechos y enlaces relativos.
-6. Actualizar hashes cuando cambien archivos y explicar el alcance de la actualización.
+Al proponer un cambio:
 
-No se aceptan credenciales, dumps completos, binarios vulnerables, código de shellcode, transmisores de explotación ni afirmaciones de ejecución no realizadas. No presentar como fallos confirmados los bytes que simplemente se excluyeron de una referencia.
+1. Indica el apartado y la explicación que se modifica.
+2. Añade la fuente o la evidencia correspondiente.
+3. Explica si se trata de un resultado del laboratorio, una prueba nueva o una interpretación.
+4. Registra entorno y versiones cuando se añada compatibilidad con otra herramienta.
+5. Revisa enlaces, atribuciones y privacidad de los archivos.
+6. Actualiza los hashes si cambia el contenido del paquete.
 
-Una migración a otra herramienta debe incluir una comprobación de aceptación y sus límites. Una mejora editorial no autoriza a cambiar el estado de validación técnica.
+Las mejoras de redacción no cambian el estado de validación de las pruebas. Si se completa una comprobación del caso, incorpora sus archivos y resultados para que se pueda revisar.
 
-No se exige ni se añade coautoría automática de asistentes. Los participantes, autores y agradecimientos deben reflejar contribuciones reales y las reglas del centro. El propietario revisará las políticas académicas aplicables antes del envío.
+El repositorio se centra en documentación y ejercicios locales. Los binarios vulnerables, dumps privados, credenciales, shellcode y scripts de explotación quedan fuera de las contribuciones.
+
+La autoría y los agradecimientos deben reflejar las aportaciones reales y las normas académicas aplicables al trabajo.

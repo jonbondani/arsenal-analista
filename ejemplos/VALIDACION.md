@@ -1,36 +1,36 @@
-# Validación de la entrega
+# Comprobaciones locales
 
-Fecha: 21-10-2026. Estos controles pertenecen al paquete documental y a sus ejemplos. **No son reproducciones del laboratorio FreeFloat.**
+Las siguientes comprobaciones corresponden a los archivos y ejercicios del recurso. No son una reproducción del laboratorio FreeFloat.
 
-## Ejemplos ejecutados
+## Ejemplos de Python
 
-Entorno de comprobación: Python **3.12.14**, biblioteca estándar. La utilidad declara como mínimo Python 3.10; no se ha ejecutado aquí en todas las versiones o sistemas operativos compatibles.
+Los ejemplos se ejecutaron el 21 de octubre de 2026 con Python 3.12.14 y la biblioteca estándar. La utilidad utiliza sintaxis compatible con Python 3.10 o posterior, aunque no se ha ejecutado en todas las versiones y sistemas operativos.
 
-| Comprobación | Resultado real |
-|---|---|
-| Demostración de endianness | `78563412`, conversión de ida y vuelta correcta |
-| Comparación sintética sin alinear | Diferencia detectada |
-| Comparación sintética alineada | Coincidencia detectada |
-| Diferencia introducida en los ejemplos | Índice 3 desde cero, código de salida 1 |
-| Comparación del mismo archivo | Coincidencia, código de salida 0 |
-| Hash de E02 | Coincide con SHA-256 calculado independientemente |
-| Archivo truncado | Diferencia de longitud detectada en el índice 3 |
-| Formato hexadecimal inválido | Rechazado, código de salida 2 |
-| Archivo hexadecimal superior al límite | Rechazado, código de salida 2 |
+| Comprobación | Resultado |
+| :--- | :--- |
+| Entero sintético a little-endian | `78563412` |
+| Conversión inversa | Recupera el entero original |
+| Referencia con prefijo sin ajustar | Detecta diferencia |
+| Referencia después de ajustar el inicio | Detecta coincidencia |
+| Archivos de ejemplo distintos | Primera diferencia en el índice 3; código 1 |
+| Archivo comparado consigo mismo | Coincidencia; código 0 |
+| SHA-256 de E02 | Coincide con un cálculo independiente |
+| Archivo truncado | Diferencia detectada en el índice 3 |
+| Hexadecimal inválido | Rechazado con código 2 |
+| Archivo superior al límite | Rechazado con código 2 |
 
-Las cuatro órdenes del tutorial y su salida real se conservan en [salida-comprobada.json](salida-comprobada.json). Los controles de truncamiento, formato y tamaño usaron archivos temporales y no añadieron datos del laboratorio al paquete.
+Las cuatro órdenes del tutorial y sus salidas están en [salida-comprobada.json](salida-comprobada.json). Las pruebas de truncamiento, formato y tamaño utilizaron archivos temporales.
 
-## Integridad y revisión documental
+## Documentación y capturas
 
-- Las seis capturas coinciden byte a byte, mediante su identidad de blob Git, con los archivos de las rutas y el commit registrados en el [manifiesto](../evidencias/manifiesto.json).
-- Se revisaron visualmente las seis capturas seleccionadas.
-- Se comprobaron destinos de enlaces locales e imágenes y equilibrio de bloques de código Markdown.
-- El paquete incluye tres diagramas Mermaid. Se revisó su estructura textual; el renderizado efectivo en la versión de Mermaid de GitHub queda para la revisión de publicación. No se instaló un renderizador adicional.
-- Se generó [SHA256SUMS](../SHA256SUMS.txt) para todos los demás archivos de la carpeta. El manifiesto de hashes no se incluye a sí mismo.
-- Se comprobó la integridad del ZIP y la correspondencia de sus archivos con la carpeta entregada.
+Las seis imágenes se revisaron visualmente y su identidad de blob Git coincide con las rutas del commit del [manifiesto](../evidencias/manifiesto.json). Los nombres locales cambian, pero sus bytes se conservaron.
 
-Las comprobaciones no certifican ausencia universal de secretos: el propietario debe revisar el contexto de publicación y los derechos del material. No se ejecutó un escáner de vulnerabilidades, un exploit ni una sesión de depuración.
+La revisión de estilo abarca los 23 documentos Markdown. Se comprobaron enlaces locales, imágenes y cierre de bloques de código. Los tres diagramas Mermaid conservan su estructura; su renderizado en GitHub forma parte de la revisión posterior a la publicación.
 
-## Pendiente externo
+## Integridad del paquete
 
-Publicar tras autorización, comprobar accesibilidad pública, renderizar en GitHub y comunicar la URL docente. La preparación local no completa esos pasos.
+[SHA256SUMS](../SHA256SUMS.txt) contiene los hashes de los demás archivos de la carpeta. No se incluye a sí mismo. Después de actualizar la documentación se regeneraron los hashes y el ZIP, y se comprobó que sus archivos corresponden al contenido de la carpeta.
+
+## Publicación
+
+El acceso público, el aspecto de los diagramas en GitHub y el envío de la URL se comprueban al publicar manualmente el repositorio. Estas comprobaciones locales no indican que esos pasos ya se hayan realizado.

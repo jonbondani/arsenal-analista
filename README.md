@@ -1,92 +1,54 @@
 # El Arsenal de un Analista
 
-## De una captura de crash a una conclusión defendible
+## Análisis de un buffer overflow con IDA Free, Immunity Debugger, mona y Python
 
-**IDA Free · Immunity Debugger · mona · Python**  
-Recurso técnico de portfolio basado en el laboratorio público de [jonbondani/CVE-2025-5548](https://github.com/jonbondani/CVE-2025-5548). Actividad del Módulo 6, «El Arsenal de un Analista». Edición documental: 21 de octubre de 2026.
+Este repositorio reúne apuntes, guías y ejemplos para trabajar con un fallo de memoria y documentar los resultados con claridad. Parte del [laboratorio de FreeFloat FTP Server 1.0](https://github.com/jonbondani/CVE-2025-5548), relacionado con CVE-2025-5548, y desarrolla el uso conjunto de IDA Free, Immunity Debugger, mona y Python.
 
-Un analista no termina cuando obtiene un registro llamativo: termina cuando otro compañero puede reconstruir qué observó, qué significa y qué sigue sin demostrar. Este arsenal enseña a conectar análisis estático, registros del depurador, comparación de memoria y automatización local, utilizando evidencias de un caso real de laboratorio.
+La idea es que puedas seguir el análisis, entender lo que aporta cada herramienta y consultar los pasos cuando necesites volver a utilizarlos. Además del caso práctico, encontrarás errores habituales, alternativas y pequeños ejercicios que funcionan sin instalar el servidor vulnerable.
 
-**Estado:** entrega documental preparada y ejemplos locales comprobados. La revisión no ejecutó FreeFloat, no reprodujo crashes y no validó un exploit final. La publicación en GitHub y el envío de su URL están pendientes de autorización del propietario.
+El recurso corresponde a la actividad **El Arsenal de un Analista**, del Módulo 6 de Vulnerabilidades. Está escrito en español y pensado como material de consulta para otros analistas.
 
-## Qué aprenderás
+## Contenido
 
-- Rastrear una entrada desde cadenas y referencias cruzadas hasta una operación de copia.
-- Interpretar un offset y una sobrescritura de EIP sin convertirlos en una afirmación de ejecución arbitraria.
-- Usar mona para reducir errores de alineación y conservar resultados verificables.
-- Distinguir bytes excluidos, bytes comparados y bytes realmente demostrados como problemáticos.
-- Elegir herramientas según arquitectura, licencias, coste de integración y objetivo.
-- Entregar un expediente con fuentes, límites, conclusiones y tareas pendientes.
+- [Guía de operación](docs/01-guia-operacion.md): preparación del entorno, organización de las pruebas y cierre de una sesión.
+- [Metodología](docs/02-metodologia.md): flujo de trabajo con diagramas Mermaid y los datos que conviene guardar en cada fase.
+- [Caso práctico](docs/03-caso-practico.md): lectura de las capturas de FreeFloat y explicación de sus resultados.
+- [Tutorial local](docs/04-tutorial-local.md): ejercicios de orden de bytes, comparación e integridad con Python.
+- [Comparativa de herramientas](docs/05-comparativa.md): usos, ventajas y limitaciones de las herramientas del caso y algunas alternativas.
+- [Limitaciones](docs/06-limitaciones.md): alcance de las conclusiones y comprobaciones que faltan en el laboratorio original.
+- [Resolución de problemas](docs/07-troubleshooting.md): síntomas frecuentes y formas de comprobar su causa.
+- [Checklist](docs/08-checklist.md): revisión del análisis y de los archivos antes de compartirlos.
+- [Referencias](docs/09-referencias.md): documentación oficial y enlaces al caso original.
 
-## Recorridos de lectura
+Las cheatsheets están separadas por herramienta: [IDA Free](cheatsheets/ida-free.md), [Immunity Debugger](cheatsheets/immunity-debugger.md), [mona](cheatsheets/mona.md) y [Python](cheatsheets/python.md). También hay una [ficha de sesión](plantillas/sesion.md) y una [plantilla de informe](plantillas/informe.md) para reutilizarlas en otros trabajos.
 
-| Necesidad | Empieza aquí | Resultado |
-|---|---|---|
-| Incorporarte al equipo | [Guía de operación](docs/01-guia-operacion.md) | Preparar y cerrar una sesión con criterios claros |
-| Revisar el caso | [Caso y evidencias](docs/03-caso-practico.md) | Separar observaciones de hipótesis |
-| Practicar sin laboratorio vulnerable | [Tutorial local](docs/04-tutorial-local.md) | Endianness, integridad y comparación de bytes |
-| Trabajar con una chuleta abierta | [IDA](cheatsheets/ida-free.md), [Immunity](cheatsheets/immunity-debugger.md), [mona](cheatsheets/mona.md), [Python](cheatsheets/python.md) | Acciones comentadas y errores habituales |
-| Elegir o sustituir herramientas | [Comparativa](docs/05-comparativa.md) | Decisión argumentada sin benchmarks inventados |
-| Resolver una sesión bloqueada | [Troubleshooting](docs/07-troubleshooting.md) | Diagnóstico guiado por síntomas |
-| Evaluar o entregar | [Matriz académica](ENTREGA.md) y [checklist](docs/08-checklist.md) | Localizar cada requisito y conocer el estado real |
+## El caso de FreeFloat
 
-## Flujo de trabajo
+La documentación original permite seguir el análisis de un servidor FTP para Windows, desde la revisión del binario hasta la interpretación de registros y memoria. Las capturas muestran una copia en pseudocódigo, una coincidencia de patrón en la posición 246, EIP con un marcador reconocible, una comparación de bytes y una detención en `INT3`.
+
+Cada resultado necesita su contexto. El offset depende del origen del patrón; una tabla sin cambios solo valida los bytes que se compararon; y una dirección vista en una sesión puede cambiar en otra. El [caso práctico](docs/03-caso-practico.md) explica estos detalles y revisa algunas diferencias entre el relato y las capturas.
+
+Las imágenes proceden de una versión concreta del repositorio y conservan sus bytes originales. El [registro de evidencias](evidencias/README.md) recoge su procedencia y los datos que se pueden leer en ellas.
+
+## Forma de trabajo
 
 ```mermaid
 flowchart LR
-    A[Alcance y autorización] --> B[Identificar artefactos]
-    B --> C[IDA: formular hipótesis]
-    C --> D[Immunity: revisar registros]
-    D --> E[mona: contrastar memoria]
-    E --> F[Python: verificar datos locales]
-    F --> G{Evidencia suficiente}
-    G -->|Sí| H[Informe con límites]
-    G -->|No| I[Marcar pendiente y diseñar comprobación]
-    I --> C
+    A[Preparar el análisis] --> B[Identificar archivos y entorno]
+    B --> C[Revisar el binario con IDA]
+    C --> D[Examinar registros y memoria]
+    D --> E[Contrastar resultados con mona]
+    E --> F[Comprobar datos con Python]
+    F --> G[Documentar resultados y límites]
 ```
 
-El [flujo detallado](docs/02-metodologia.md) explica las entradas, salidas y condiciones de cierre. La ruta se puede recorrer sobre las evidencias incluidas: no requiere lanzar entradas contra un servidor.
+IDA ayuda a localizar el código que procesa una entrada. El depurador permite ver el estado del proceso. mona facilita la búsqueda de patrones y la comparación de memoria. Python sirve para comprobar representaciones y archivos. La metodología une esas tareas para que el resultado pueda seguirse sin depender de la memoria de quien hizo la prueba.
 
-## Qué está evidenciado
+## Primeros pasos
 
-| Afirmación | Estado de esta entrega |
-|---|---|
-| El caso fuente documenta FreeFloat FTP Server 1.0, Windows y proceso x86 | Documentado por el repositorio; no se ha inventariado la VM original |
-| Existe una captura de pseudocódigo con una copia en la rama de `USER` | Observado en E01; no demuestra por sí sola la causa del fallo en `NOOP` |
-| mona muestra una coincidencia en la posición 246 | Observado en E02; relativo al patrón de esa prueba |
-| Una captura muestra EIP = `42424242` | Observado en E03; interpretación sujeta al contexto de la sesión |
-| mona compara una referencia de 253 bytes y devuelve `Unmodified` | Observado en E05; no prueba el comportamiento de los tres bytes excluidos |
-| Una captura muestra EIP en una instrucción `INT3` | Observado en E06; no demuestra fiabilidad entre reinicios ni un exploit final |
-| Se han repetido estas pruebas durante esta preparación | **No** |
+Para consultar el caso, empieza por la [guía de operación](docs/01-guia-operacion.md) y continúa con el [análisis de FreeFloat](docs/03-caso-practico.md).
 
-Los detalles, reservas y enlaces permanentes están en el [registro de evidencias](evidencias/README.md). Los hashes del paquete verifican integridad de los archivos entregados; no acreditan cómo se generó el laboratorio original.
-
-## Valor práctico del caso
-
-El repositorio fuente permite estudiar un fallo de memoria conocido y, además, practicar revisión técnica. Hay que evitar tres saltos lógicos: equiparar una rama de `USER` con la ruta de error de `NOOP`, tratar `Unmodified` como prueba de todos los bytes posibles y atribuir estabilidad a una dirección vista una sola vez. El [análisis del caso](docs/03-caso-practico.md) convierte estas discrepancias en decisiones operativas.
-
-La ficha pública [NVD de CVE-2025-5548](https://nvd.nist.gov/vuln/detail/CVE-2025-5548) vincula FreeFloat FTP Server 1.0 con un buffer overflow relacionado con `NOOP`. Esa atribución externa contextualiza el caso; no sustituye una traza causal del binario analizado.
-
-## Estructura
-
-```text
-README.md                    Entrada y rutas de lectura
-ENTREGA.md                   Correspondencia con las páginas 4-6 del enunciado
-docs/                        Operación, metodología, caso, tutorial y criterios
-cheatsheets/                 Cuatro fichas prácticas comentadas
-evidencias/                  Registro, capturas y manifiesto de procedencia
-herramientas/auditoria_local.py  Utilidad de solo lectura, sin red
-ejemplos/                    Datos sintéticos y salida comprobada
-plantillas/                  Ficha de sesión e informe reutilizables
-CONTRIBUTING.md              Reglas de contribución y revisión
-SECURITY.md                  Alcance de publicación
-AVISO-DE-USO.md              Autoría, procedencia y derechos
-SHA256SUMS.txt               Integridad del contenido del paquete
-```
-
-## Inicio rápido sin red
-
-Con Python 3.10 o posterior, desde la raíz del recurso:
+Para practicar directamente, basta con Python 3.10 o posterior. Desde la raíz del repositorio:
 
 ```console
 python3 herramientas/auditoria_local.py demo
@@ -94,10 +56,16 @@ python3 herramientas/auditoria_local.py hash evidencias/capturas/E02-offset-246.
 python3 herramientas/auditoria_local.py compare ejemplos/referencia.hex ejemplos/observado.hex
 ```
 
-El tercer comando detecta deliberadamente una diferencia y termina con código 1. Véase el [tutorial](docs/04-tutorial-local.md). No se distribuyen scripts de explotación, binarios vulnerables, credenciales, dumps privados ni shellcode.
+Los archivos del último comando tienen una diferencia introducida a propósito. El programa la detecta y devuelve el código de salida 1. El [tutorial](docs/04-tutorial-local.md) explica cómo interpretar cada resultado.
 
-## Límites y mantenimiento
+## Alcance
 
-Las direcciones y offsets históricos no son constantes universales. Faltan hashes del ejecutable y versiones completas de parte del entorno original. Las alternativas de herramientas son propuestas, no migraciones probadas. El repositorio clásico de mona está archivado y remite a mona3; el flujo histórico se conserva para interpretar las capturas, con esa limitación explícita. Ver [limitaciones](docs/06-limitaciones.md) y [referencias](docs/09-referencias.md).
+La guía revisa el laboratorio ya documentado. Las comprobaciones nuevas corresponden a los ejemplos locales de Python, que utilizan datos sintéticos. No se ha repetido la ejecución de FreeFloat para elaborar este recurso ni se presenta un exploit final validado.
 
-Este recurso desarrolla documentación sobre un caso ya público. Cualquier nuevo indicio se mantiene en una revisión privada hasta confirmar alcance y tratamiento. Las instrucciones de [publicación](docs/10-publicacion.md) son una preparación para el propietario: este paquete no se ha publicado.
+El repositorio no incluye el binario vulnerable, shellcode, credenciales ni scripts que envíen entradas de explotación. Las alternativas de herramientas se comentan como opciones para otros análisis, sin atribuirles pruebas que no se han hecho.
+
+## Entrega y reutilización
+
+La [memoria de la actividad](ENTREGA.md) relaciona el contenido con las páginas 4 a 6 del enunciado. La [guía de publicación](docs/10-publicacion.md) recoge los pasos para subirlo a GitHub y enviar la URL.
+
+Antes de reutilizar las capturas o redistribuir el material, consulta el [aviso de uso](AVISO-DE-USO.md). Los hashes de los archivos están en [SHA256SUMS](SHA256SUMS.txt).

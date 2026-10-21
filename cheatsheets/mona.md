@@ -1,82 +1,75 @@
-# Cheatsheet comentada: mona clásico
+# Cheatsheet de mona
 
-[Índice](../README.md) · [Registro de evidencias](../evidencias/README.md)
+[Índice](../README.md) · [Evidencias](../evidencias/README.md)
 
-**Pregunta principal:** ¿coincide esta referencia con el estado observado?  
-**Alcance:** órdenes de revisión y preparación local presentes en la metodología histórica. No incluye búsqueda de gadgets ni construcción de payloads.
+Esta ficha recoge las órdenes de mona clásico que aparecen en la revisión de patrones y memoria. El proyecto [corelan/mona](https://github.com/corelan/mona) está archivado y remite a [mona3](https://github.com/corelan/mona3). Antes de usar otro entorno, revisa sus requisitos y ayuda: la compatibilidad de hosts y comandos puede cambiar.
 
-El repositorio [corelan/mona](https://github.com/corelan/mona) está archivado y remite a [mona3](https://github.com/corelan/mona3). Esta ficha conserva la sintaxis histórica para comprender el caso. No afirma compatibilidad directa con mona3, WinDbg o una instalación actual; verificar ayuda y versión antes de emplearla.
-
-## Comandos y criterios
-
-### Aislar la salida de una sesión
+## Separar los archivos de una sesión
 
 ```text
 !mona config -set workingfolder C:\Mona\sesion_revision
 ```
 
-**Para qué:** separar tablas, patrones e informes de distintas sesiones.  
-**Guardar:** ruta efectiva, versión del plugin y archivos producidos.  
-**Evitar:** reutilizar una referencia antigua por haber mantenido la misma carpeta. La configuración cambia el directorio de salida y debe hacerse solo dentro del entorno autorizado.
+La carpeta de trabajo reúne patrones, referencias e informes. Utilizar una carpeta distinta por sesión evita confundir una tabla antigua con la que se acaba de generar. Guarda también la versión del plugin y la ruta efectiva.
 
-### Crear una referencia de patrón local
+## Generar un patrón local
 
 ```text
 !mona pattern_create 400
 ```
 
-**Para qué:** generar un patrón identificable de la longitud documentada por la fuente.  
-**Guardar:** archivo exacto, longitud, hash y convención del offset.  
-**Límite:** generar el patrón no demuestra que se enviara, que alcanzara la función ni que produjera un crash. Esta entrega no incluye un transmisor de entradas.
+La orden crea un patrón con la longitud descrita en el laboratorio. Conserva el archivo exacto y su hash para poder contrastarlo más adelante.
 
-### Consultar un valor histórico
+Generar el patrón es una operación local. Para relacionarlo con un crash harían falta la entrada utilizada y el contexto de la ejecución. El repositorio no incluye un script que lo transmita al servidor.
+
+## Consultar el valor de la captura
 
 ```text
 !mona pattern_offset 41326941
 ```
 
-**Para qué:** ubicar la secuencia correspondiente al valor leído en EIP, según el patrón y modo utilizados.  
-**Evidencia:** E02 devuelve posición 246.  
-**Evitar:** escribir el valor como texto decimal o invertir bytes manualmente sin entender cómo los interpreta la orden. Conservar la salida completa y contrastarla con la referencia real.
+En E02, la consulta devuelve la posición 246. La medida se refiere al patrón consultado y necesita un origen bien definido. Revisa la representación del valor antes de invertir bytes a mano o cambiar su formato.
 
-### Generar una tabla con exclusiones declaradas
+La salida completa y el archivo del patrón permiten comprobar que la coincidencia corresponde a la referencia de esa prueba.
+
+## Crear una tabla con exclusiones
 
 ```text
 !mona bytearray -b "\x00\x0a\x0d"
 ```
 
-**Para qué:** crear la referencia de 253 bytes descrita en el caso.  
-**Flag:** `-b` declara bytes excluidos.  
-**Límite:** excluir un byte es una decisión de la prueba; no demuestra que ese byte haya fallado. Registrar si la exclusión se basa en protocolo, hipótesis o una observación anterior.
+El parámetro `-b` indica los bytes que quedan fuera de la referencia. Con esas tres exclusiones, la tabla contiene 253 valores.
 
-### Comparar desde una dirección comprobada
+Anota el motivo de cada exclusión. Puede proceder del protocolo, de una hipótesis o de una observación previa. El hecho de excluir un valor no demuestra que haya fallado en la comparación.
+
+## Comparar desde el inicio de la tabla
 
 ```text
 !mona compare -f C:\Mona\sesion_revision\bytearray.bin -a DIRECCION_VERIFICADA
 ```
 
-`DIRECCION_VERIFICADA` es un marcador documental, no un argumento literal válido. Sustituirlo por la dirección del primer byte de la tabla, observada en la sesión actual.
+Sustituye `DIRECCION_VERIFICADA` por la dirección del primer byte observada en la sesión. Es un marcador de la explicación y no un argumento literal válido.
 
-**Flags:** `-f` identifica la referencia y `-a` la dirección inicial.  
-**Guardar:** hash y longitud de la referencia, dirección, registros del mismo instante y salida.  
-**Interpretar:** `Unmodified` solo corresponde a esa referencia y ubicación. En la fuente se usó una dirección descrita como ESP menos ocho; no copiar ese ajuste automáticamente.
+`-f` identifica el archivo de referencia y `-a` la posición inicial de memoria. Conserva el hash y la longitud de la tabla, la dirección utilizada, los registros de ese instante y la salida de mona.
 
-### Revisar módulos
+`Unmodified` indica que esa referencia coincide en esa ubicación. En el caso se describe un inicio ocho bytes antes de ESP, pero el ajuste necesita comprobarse de nuevo en otra detención.
+
+## Revisar módulos
 
 ```text
 !mona modules
 ```
 
-**Para qué:** inventariar módulos y atributos que la herramienta presenta.  
-**Guardar:** módulo, versión o hash cuando se disponga, base y sesión.  
-**Límite:** los indicadores del módulo no son una evaluación completa de la política efectiva del proceso. No convertir `NXCompat = False` en “DEP desactivado” ni un resultado aislado en fiabilidad entre reinicios.
+La salida ayuda a inventariar módulos y sus atributos. Registra módulo, versión o hash cuando estén disponibles, base y sesión.
 
-## Árbol de diagnóstico de una comparación
+Los indicadores deben interpretarse por separado. `NXCompat = False` no permite concluir por sí solo que DEP esté desactivado. La estabilidad de una dirección tampoco se determina con una única lista de módulos.
 
-1. ¿La referencia es la de esta sesión? Si no, identificar la correcta antes de comparar.
-2. ¿Comienza el dump con la secuencia inicial esperada? Si no, localizar el principio sin asumir ESP.
-3. ¿La longitud está completa? Si no, distinguir truncamiento de modificación.
-4. ¿Hay divergencia en un punto concreto? Registrar el primer índice y revisar parser, representación y delimitadores.
-5. ¿No hay divergencias? Concluir solo sobre los bytes incluidos en esa comparación.
+## Comprobar una comparación dudosa
 
-**Regla operativa:** primero dirección y referencia; después interpretación. Una comparación automatizada sobre una hipótesis equivocada produce una salida precisa para la pregunta equivocada.
+1. Confirma que la referencia pertenece a la sesión actual.
+2. Localiza en el dump el comienzo de la secuencia.
+3. Comprueba que la longitud permite leerla completa.
+4. Si hay diferencias, anota el primer índice y revisa representación, delimitadores y parseo.
+5. Si coincide, limita la conclusión a los bytes y al contexto comparados.
+
+La dirección y la referencia deben estar resueltas antes de interpretar la salida. La [resolución de problemas](../docs/07-troubleshooting.md) amplía los síntomas más habituales.
