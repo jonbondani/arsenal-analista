@@ -1,0 +1,72 @@
+{
+  "clase": "VALIDACION LOCAL SINTETICA; NO PRUEBA DEL SERVIDOR",
+  "fecha": "2026-10-21",
+  "python": "3.12.14",
+  "comprobaciones": [
+    {
+      "argumentos": [
+        "python3",
+        "herramientas/auditoria_local.py",
+        "demo"
+      ],
+      "codigo_salida": 0,
+      "resultado": {
+        "clase": "SINTETICO",
+        "entero_hex": "0x12345678",
+        "little_endian": "78563412",
+        "ida_vuelta_correcta": true,
+        "coincide_inicio_cero": false,
+        "coincide_inicio_dos": true,
+        "primera_diferencia": 3
+      }
+    },
+    {
+      "argumentos": [
+        "python3",
+        "herramientas/auditoria_local.py",
+        "compare",
+        "ejemplos/referencia.hex",
+        "ejemplos/observado.hex"
+      ],
+      "codigo_salida": 1,
+      "resultado": {
+        "coinciden": false,
+        "longitud_referencia": 8,
+        "longitud_observado": 8,
+        "primera_diferencia": 3,
+        "convencion": "indice desde cero"
+      }
+    },
+    {
+      "argumentos": [
+        "python3",
+        "herramientas/auditoria_local.py",
+        "compare",
+        "ejemplos/referencia.hex",
+        "ejemplos/referencia.hex"
+      ],
+      "codigo_salida": 0,
+      "resultado": {
+        "coinciden": true,
+        "longitud_referencia": 8,
+        "longitud_observado": 8,
+        "primera_diferencia": null,
+        "convencion": "indice desde cero"
+      }
+    },
+    {
+      "argumentos": [
+        "python3",
+        "herramientas/auditoria_local.py",
+        "hash",
+        "evidencias/capturas/E02-offset-246.png"
+      ],
+      "codigo_salida": 0,
+      "resultado": {
+        "archivo": "E02-offset-246.png",
+        "bytes": 15851,
+        "sha256": "d9805bdce8ab837ea364ab7ee1f17ddefcf8c17ebe2be01f997a727ece4f6f1b"
+      }
+    }
+  ]
+}

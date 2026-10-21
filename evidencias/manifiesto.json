@@ -1,0 +1,95 @@
+{
+  "repositorio": "jonbondani/CVE-2025-5548",
+  "commit": "6c302ee05599ce34dae0892f8678bed802879dab",
+  "fecha_revision": "2026-10-21",
+  "metodo": "Comparacion de la identidad Git blob SHA-1 local con el sha devuelto por GitHub fetch_file para el commit fijado; SHA-256 adicional para integridad local",
+  "limite": "No acredita autenticidad experimental, fecha de captura ni repetibilidad",
+  "capturas": [
+    {
+      "id": "E01",
+      "archivo": "capturas/E01-ida-copia.png",
+      "ruta_original": "02-Exploitation/images/paso-0/12-pseudocodigo-strcpy.png",
+      "url_original": "https://github.com/jonbondani/CVE-2025-5548/blob/6c302ee05599ce34dae0892f8678bed802879dab/02-Exploitation/images/paso-0/12-pseudocodigo-strcpy.png",
+      "bytes": 153034,
+      "sha256": "ab40e4b70de0b4ce687dc482103dc9930f62d80afef6dda98c0da94b06c6b607",
+      "git_blob_sha1": "a1ba198bcfb98c2a495945bfb5e466b45cfde71d",
+      "coincide_con_blob_remoto": true,
+      "transformacion": "renombrado, sin editar bytes",
+      "tipo": "captura historica; no reproduccion nueva"
+    },
+    {
+      "id": "E02",
+      "archivo": "capturas/E02-offset-246.png",
+      "ruta_original": "02-Exploitation/images/paso-2/06-mona-pattern-offset-246.png",
+      "url_original": "https://github.com/jonbondani/CVE-2025-5548/blob/6c302ee05599ce34dae0892f8678bed802879dab/02-Exploitation/images/paso-2/06-mona-pattern-offset-246.png",
+      "bytes": 15851,
+      "sha256": "d9805bdce8ab837ea364ab7ee1f17ddefcf8c17ebe2be01f997a727ece4f6f1b",
+      "git_blob_sha1": "7407b27844e04d4f85e98e30d0162a6dc03c82d2",
+      "coincide_con_blob_remoto": true,
+      "transformacion": "renombrado, sin editar bytes",
+      "tipo": "captura historica; no reproduccion nueva"
+    },
+    {
+      "id": "E03",
+      "archivo": "capturas/E03-eip-marcador.png",
+      "ruta_original": "02-Exploitation/images/paso-3/02-eip-42424242.png",
+      "url_original": "https://github.com/jonbondani/CVE-2025-5548/blob/6c302ee05599ce34dae0892f8678bed802879dab/02-Exploitation/images/paso-3/02-eip-42424242.png",
+      "bytes": 36287,
+      "sha256": "3b04190e22f72fb72c2913a2cdba95341d207fdadfa3019dffb0057474b461de",
+      "git_blob_sha1": "bd7eb2e18ecf30ba751985b4f15a552fbde7de2c",
+      "coincide_con_blob_remoto": true,
+      "transformacion": "renombrado, sin editar bytes",
+      "tipo": "captura historica; no reproduccion nueva"
+    },
+    {
+      "id": "E04",
+      "archivo": "capturas/E04-dump-alineacion.png",
+      "ruta_original": "02-Exploitation/images/paso-4/04-hexdump-offset-esp8.png",
+      "url_original": "https://github.com/jonbondani/CVE-2025-5548/blob/6c302ee05599ce34dae0892f8678bed802879dab/02-Exploitation/images/paso-4/04-hexdump-offset-esp8.png",
+      "bytes": 53848,
+      "sha256": "3e6d8df4fc0896643bcf926991ad2cf05c63b3ad5a078b72f434000caad0a1fb",
+      "git_blob_sha1": "6b463a33590d067b80c2d7594e3ca7f07d93fa2c",
+      "coincide_con_blob_remoto": true,
+      "transformacion": "renombrado, sin editar bytes",
+      "tipo": "captura historica; no reproduccion nueva"
+    },
+    {
+      "id": "E05",
+      "archivo": "capturas/E05-comparacion.png",
+      "ruta_original": "02-Exploitation/images/paso-4/05-mona-compare-unmodified.png",
+      "url_original": "https://github.com/jonbondani/CVE-2025-5548/blob/6c302ee05599ce34dae0892f8678bed802879dab/02-Exploitation/images/paso-4/05-mona-compare-unmodified.png",
+      "bytes": 51919,
+      "sha256": "e3ba8a9ead24977c7cededc6fabcb125a9fddb47791c8b20f6db2798c4257229",
+      "git_blob_sha1": "5b1f908c2ceff5d2101dc98d8460b723b82cf2cd",
+      "coincide_con_blob_remoto": true,
+      "transformacion": "renombrado, sin editar bytes",
+      "tipo": "captura historica; no reproduccion nueva"
+    },
+    {
+      "id": "E06",
+      "archivo": "capturas/E06-int3.png",
+      "ruta_original": "02-Exploitation/images/paso-5/10-eip-sobreescrito-final.png",
+      "url_original": "https://github.com/jonbondani/CVE-2025-5548/blob/6c302ee05599ce34dae0892f8678bed802879dab/02-Exploitation/images/paso-5/10-eip-sobreescrito-final.png",
+      "bytes": 61765,
+      "sha256": "7df260280161cc8dbcd8c70a887f77108d65a81aa83520aecdb9ba7a53abe385",
+      "git_blob_sha1": "8406bc626c8e3be8a3e1e159a5e9a84232621e6e",
+      "coincide_con_blob_remoto": true,
+      "transformacion": "renombrado, sin editar bytes",
+      "tipo": "captura historica; no reproduccion nueva"
+    }
+  ],
+  "documentos_fuente": [
+    {
+      "ruta": "01-Environment/README.md",
+      "git_blob_sha1": "eedf6dd455c7894e7558b74c363642f12d939640"
+    },
+    {
+      "ruta": "02-Exploitation/README.md",
+      "git_blob_sha1": "d6dd6d242341330628e62c311de280c5ad9399d3"
+    },
+    {
+      "ruta": "exploits/README.md",
+      "git_blob_sha1": "8d88880f6b1436e0976db715a4447100d49672af"
+    }
+  ]
+}
