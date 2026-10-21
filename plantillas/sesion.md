@@ -1,55 +1,49 @@
 # Ficha de sesión
 
-Completa esta ficha al preparar y cerrar una prueba. Si falta un dato, indícalo en observaciones para poder recuperarlo después.
-
 ## Datos generales
 
 - **ID de sesión:**
 - **Analista y participantes:**
 - **Fecha, hora y zona horaria:**
-- **Objetivo:**
-- **Alcance y autorización:**
+- **Objetivo y alcance autorizado:**
 - **Condiciones de parada:**
-- **Destino de los resultados:**
 
 ## Muestra y entorno
 
-- **Nombre y origen de la muestra:**
+- **Nombre y origen del ejecutable:**
 - **SHA-256:**
 - **Arquitectura confirmada:**
 - **Sistema y build:**
-- **VM, snapshot y configuración de red:**
-- **Herramienta de análisis estático y versión:**
+- **VM, snapshot y red:**
+- **IDA y versión:**
 - **Depurador y versión:**
-- **Plugin, versión e intérprete embebido:**
+- **Plugin e intérprete embebido:**
 - **Python externo y versión:**
 - **Entrada y referencia utilizadas, con sus hashes:**
 
-## Registro de acciones
+## Acciones
 
-| Hora | Acción | Archivo de entrada | Resultado | Evidencia |
+| Hora | Acción | Entrada | Resultado | Archivo de referencia |
 | :--- | :--- | :--- | :--- | :--- |
 | | | | | |
 
-Añade una fila por operación relevante. Si cambia el entorno o la entrada, déjalo anotado antes de continuar.
+Anota los cambios de entrada o configuración antes de continuar.
 
-## Estado de la detención
+## Detención
 
 - **Proceso e hilo:**
 - **Tipo y código de excepción:**
-- **Registros relevantes:**
-- **Instrucción y dirección de acceso:**
+- **EIP, ESP y EBP en x86:**
+- **Instrucción y bytes en EIP:**
+- **Dirección y tipo de acceso:**
 - **Módulo, base, RVA y permisos:**
 - **Referencia comparada, longitud y dirección inicial:**
-- **Relación con la entrada exacta:**
+- **Relación con la entrada de la prueba:**
 
-## Cierre
+## Resultado
 
-- **Resultados observados:**
-- **Interpretación y evidencias que la respaldan:**
-- **Explicaciones que falta comprobar:**
-- **Datos que faltan y próxima comprobación:**
-- **Revisión del material que se va a compartir:**
-- **Versión de los archivos guardados:**
-
-Mantén las rutas privadas y los datos sensibles fuera de la copia pública.
+- **Observaciones:**
+- **Interpretación y archivos que la respaldan:**
+- **Datos que faltan:**
+- **Próxima comprobación:**
+- **Cambios entre esta sesión y la anterior:**

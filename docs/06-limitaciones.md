@@ -1,49 +1,44 @@
-# Alcance y limitaciones
+# Limitaciones del análisis
 
 [Volver al índice](../README.md)
 
-## Información disponible
+## Datos del laboratorio
 
-Se trabaja con la documentación y las capturas del laboratorio. Para repetir las pruebas harían falta el binario original y los datos del entorno.
+El caso se revisa a partir de su documentación y capturas. Faltan el binario original identificado por hash, el inventario completo del entorno y las entradas exactas de todas las pruebas. Tampoco está conservado todo el contexto de las detenciones.
 
-En el material consultado faltan el hash del ejecutable, el inventario completo de herramientas y parte del contexto de las detenciones. Tampoco se conservan aquí las entradas exactas de todas las pruebas. Por eso la relación entre el dato enviado y el estado del proceso se apoya en el relato y las imágenes disponibles.
+Esto afecta a la reproducción y a la relación entre cada entrada y el estado observado. Los ejemplos de Python son pruebas locales con datos sintéticos y no cubren esas carencias del servidor.
 
-Las pruebas nuevas son las de Python. Usan datos sintéticos y se registran aparte de las capturas de FreeFloat.
+## Resultados que necesitan más contexto
 
-## Límites del caso
-
-| Aspecto | Alcance de la evidencia |
+| Resultado | Límite |
 | :--- | :--- |
-| Copia observada en `USER` | Permite estudiar una operación candidata, pero la ruta `NOOP` necesita su propio seguimiento |
-| Coincidencia en el offset 246 | Se refiere al patrón y al contexto documentados |
-| Tabla de 253 bytes sin cambios | Valida la referencia comparada; no evalúa los tres valores excluidos |
-| Captura con `INT3` | Muestra una detención compatible con el relato, sin reconstruir toda la ejecución previa |
-| Direcciones del ejemplo | Presentan diferencias de representación que deben resolverse antes de reutilizarlas |
-| Estabilidad entre sesiones | No queda acreditada sin comprobaciones tras reiniciar |
-| Indicadores de módulos | No describen por sí solos todas las mitigaciones efectivas del proceso |
+| Copia en la rama `USER` | Falta seguir la ruta `NOOP` hasta la operación que corrompe memoria |
+| Offset 246 | Se refiere al patrón y al origen de aquella prueba |
+| Tabla de 253 bytes sin cambios | Los tres valores excluidos no se compararon |
+| EIP sobre `INT3` | No se ve toda la ejecución anterior ni la repetibilidad |
+| Dirección de salto | Hay diferencias entre su representación escrita, los bytes y la captura |
+| Indicadores de módulos | No describen por sí solos la política efectiva del proceso |
 
-El [caso práctico](03-caso-practico.md) desarrolla cada punto y enumera las comprobaciones que permitirían completar el análisis.
+Las comprobaciones concretas están al final del [caso práctico](03-caso-practico.md).
 
-## Interpretación de las herramientas
+## Pseudocódigo y memoria
 
-El pseudocódigo de IDA es una reconstrucción. Los tipos, nombres y expresiones pueden necesitar correcciones. Cuando una conclusión depende de la capacidad de un objeto o de su ubicación en memoria, hay que seguir también sus llamadores y revisar el ensamblador.
+IDA reconstruye tipos y expresiones. Una suma a un puntero no determina por sí sola la capacidad del objeto ni si se encuentra en pila o heap. Para confirmarlo hay que seguir la asignación y revisar los llamadores y las instrucciones.
 
-El depurador muestra un instante concreto. Pausar o continuar puede cambiar el estado y los tiempos del proceso. Una captura necesita su sesión, entrada y contexto para poder interpretarse con precisión.
+El depurador muestra un instante. La pausa, la continuación y el cambio de hilo pueden afectar al estado observado. La captura debe quedar vinculada con la entrada y la sesión.
 
-mona automatiza comparaciones, pero trabaja sobre la dirección y la referencia que recibe. Un resultado correcto puede corresponder a una referencia equivocada o a otra sesión. El repositorio clásico está archivado; la migración a mona3 requiere una revisión independiente.
+## Referencias y comparaciones
 
-Python ayuda a comparar e identificar archivos. La utilidad incluida no conoce su procedencia ni decide si una referencia representa bien la prueba. Esa parte debe quedar explicada en el registro del análisis.
+mona compara los bytes desde la dirección indicada. Una referencia antigua o un comienzo desplazado puede producir una salida correcta para datos que no corresponden a la prueba.
+
+La utilidad Python tampoco comprueba la procedencia de sus archivos. Detecta diferencias y calcula hashes; la relación con el experimento se guarda en el registro.
 
 ## Mitigaciones
 
-ASLR, DEP, CFG y SafeSEH tienen funciones distintas. La presencia o ausencia de un indicador no resume la seguridad completa del proceso.
+La [documentación de Microsoft sobre DEP](https://learn.microsoft.com/en-us/windows/win32/memory/data-execution-prevention) explica el marcado de páginas como no ejecutables. Para interpretar una dirección hay que distinguir atributos del ejecutable, política del proceso y permisos de la página.
 
-La [documentación de Microsoft sobre DEP](https://learn.microsoft.com/en-us/windows/win32/memory/data-execution-prevention) explica que el sistema puede marcar páginas como no ejecutables. Por eso conviene distinguir la declaración del ejecutable, la política efectiva y los permisos de la página que se está estudiando. Esos estados no se han medido de nuevo para esta guía.
+No se han comprobado de nuevo esos estados en FreeFloat. ASLR, DEP, CFG y SafeSEH tampoco deben resumirse como una única condición de “explotable” o “no explotable”.
 
-## Uso y publicación
+## Repetibilidad
 
-El contenido se limita a un fallo ya público, sus evidencias y ejercicios locales. Los binarios, dumps privados, credenciales y payloads finales quedan fuera del repositorio.
-
-Las capturas mantienen su atribución. Los derechos y condiciones de reutilización se describen en el [aviso de uso](../AVISO-DE-USO.md).
-
-Si se añade una prueba, conviene registrar fecha, sesión, archivos y resultado. Una limitación se puede dar por resuelta cuando se incorpora la evidencia correspondiente. Así queda claro qué resultado pertenece a cada prueba.
+Una dirección observada una vez no queda validada entre reinicios. Hacen falta sesiones independientes con la muestra identificada y un registro de módulo, base y RVA. El resultado de cada repetición debe conservarse, también si cambia respecto a la anterior.

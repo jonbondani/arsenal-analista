@@ -2,41 +2,37 @@
 
 [Volver al índice](../README.md)
 
-La elección de herramientas depende de la muestra, la arquitectura y el análisis. Aquí se compara su uso en el caso con las funciones descritas en la documentación oficial. No se han medido tiempos ni rendimiento.
+## Herramientas del caso
 
-## Herramientas utilizadas en el laboratorio
-
-| Herramienta | Uso principal | Ventaja en el caso | Limitación |
+| Herramienta | Uso | Ventaja | Limitación |
 | :--- | :--- | :--- | :--- |
-| IDA Free | Estudiar funciones, cadenas y referencias | Relaciona el protocolo con ramas y operaciones del binario | La edición, licencia y decompilación condicionan el uso |
-| Immunity Debugger | Examinar el estado de un proceso x86 | Permite leer registros, pila y memoria como en las capturas | El entorno histórico necesita versiones compatibles |
-| mona clásico | Consultar patrones y comparar memoria | Reduce trabajo repetitivo y deja una salida concreta | Depende de la referencia y del host; su repositorio está archivado |
-| Python | Comprobar representaciones y archivos | Facilita tareas pequeñas y revisables | El resultado depende de los datos y de la lógica del script |
+| IDA Free | Seguir funciones, cadenas y referencias | Relaciona las entradas FTP con el código | Edición, licencia y decompilación condicionan el uso |
+| Immunity Debugger | Revisar el proceso x86 detenido | Muestra registros, pila y memoria | Necesita un entorno compatible con el depurador y sus plugins |
+| mona clásico | Consultar patrones y comparar bytes | Automatiza búsquedas y comparaciones | Depende de la referencia y del host; su repo está archivado |
+| Python | Convertir, comparar y calcular hashes | Comprobaciones pequeñas que se pueden repetir | No conoce el contexto de los archivos que recibe |
 
-IDA, Immunity y mona están documentados en el laboratorio original. La utilidad Python incluida tiene sus propias [comprobaciones locales](../ejemplos/VALIDACION.md).
+IDA, Immunity y mona aparecen en las pruebas documentadas del laboratorio. Los ejemplos locales de Python tienen sus [resultados](../ejemplos/VALIDACION.md) aparte.
 
-## Alternativas para otros análisis
+## Alternativas
 
-**Ghidra** permite una segunda lectura estática con desensamblado y decompilación. Puede ayudar a contrastar una función, aunque dos reconstrucciones distintas siguen necesitando una revisión del ensamblador. No se ha utilizado para repetir este caso.
+**Ghidra** sirve para contrastar el análisis estático con otro desensamblador y decompilador. Si las reconstrucciones difieren, hay que volver a las instrucciones y revisar los tipos; no basta con elegir la salida más legible.
 
-**x32dbg y x64dbg** ofrecen otra opción de depuración de usuario en Windows. La arquitectura del proceso orienta la elección. Los plugins y los atajos del flujo de Immunity necesitan revisarse al cambiar de entorno.
+**x32dbg y x64dbg** son opciones de depuración de usuario en Windows. Se eligen según la arquitectura del proceso. Los plugins, atajos y comandos del flujo de Immunity necesitan revisarse al cambiar de entorno.
 
-**WinDbg con mona3** es una opción para evaluar en un laboratorio nuevo. El proyecto clásico de mona remite a mona3, cuya documentación contempla hosts como WinDbg y WinDbgX. La compatibilidad de instalación y comandos debe comprobarse antes de trasladar las instrucciones del caso.
+**WinDbg con mona3** es otra opción para un laboratorio nuevo. El repo clásico remite a mona3, que contempla hosts como WinDbg y WinDbgX. La instalación y los comandos se deben comprobar antes de trasladar los pasos del caso.
 
-Las capacidades se pueden consultar en las páginas oficiales de [IDA Free](https://hex-rays.com/ida-free), [Ghidra](https://github.com/NationalSecurityAgency/ghidra), [x64dbg](https://x64dbg.com/), [mona](https://github.com/corelan/mona) y [mona3](https://github.com/corelan/mona3).
+Estas alternativas se comparan a partir de su documentación. No se ha repetido el laboratorio con ellas ni se han medido tiempos o rendimiento.
 
-## Elegir según el trabajo
+## Arquitectura y condiciones de uso
 
-Para seguir las capturas se mantienen las herramientas del laboratorio original. Un cambio de depurador o plugin necesita sus propias comprobaciones.
+Para estudiar un proceso x64 hay que revisar herramientas, registros y tamaños. EIP y el offset del caso x86 no se trasladan directamente.
 
-Para un análisis nuevo conviene elegir primero la arquitectura y el objetivo. Un proceso x64 necesita revisar las herramientas y los supuestos sobre registros y tamaños. Los valores de EIP y el offset del caso x86 no se trasladan directamente.
+Con un binario confidencial también importan las condiciones del decompilador. La página de IDA Free describe decompilación en la nube y restricciones de uso comercial. Hay que revisar esas condiciones antes de cargar una muestra.
 
-Si el binario es confidencial, hay que revisar el tratamiento de datos y las condiciones de licencia. La página de IDA Free describe un decompilador en la nube y restricciones de uso comercial, por lo que esas condiciones importan antes de cargar una muestra.
+## Cambiar de entorno
 
-## Instalación y mantenimiento
+Guarda versiones, intérpretes y dependencias para poder volver a montar el laboratorio. Mantener un caso antiguo puede requerir conservar su entorno original; actualizarlo necesita una prueba de compatibilidad.
 
-Al preparar el entorno también hay que contar con cuentas, licencias, intérpretes, plugins y VM. Sus versiones y dependencias deben quedar anotadas para poder volver a montarlo.
+Esa prueba debería confirmar la apertura de una muestra autorizada, su arquitectura, la lectura de registros y memoria y una comparación con referencia conocida. Hasta hacerlo, el cambio de herramienta queda como una opción por evaluar.
 
-Para mantener un caso histórico suele ser útil conservar las versiones con las que se generaron las evidencias. Si se prepara un entorno nuevo, una prueba pequeña de compatibilidad ayuda a decidir si conviene actualizarlo.
-
-Esa prueba puede incluir la apertura de una muestra autorizada, la confirmación de su arquitectura, la lectura de registros y memoria y una comparación local con referencia conocida. Hasta completar esos pasos, la migración debe presentarse como una opción por evaluar.
+Fuentes: [IDA Free](https://hex-rays.com/ida-free), [Ghidra](https://github.com/NationalSecurityAgency/ghidra), [x64dbg](https://x64dbg.com/), [mona](https://github.com/corelan/mona) y [mona3](https://github.com/corelan/mona3).

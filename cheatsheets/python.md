@@ -1,10 +1,8 @@
 # Cheatsheet de Python
 
-[Índice](../README.md) · [Tutorial](../docs/04-tutorial-local.md)
+[Índice](../README.md) · [Ejemplos locales](../docs/04-tutorial-local.md)
 
-Con Python se comprueba el orden de bytes, se comparan datos y se calculan hashes. Los ejemplos usan valores sintéticos y se ejecutan en local.
-
-## Convertir un entero a bytes
+## Enteros y orden de bytes
 
 ```python
 import struct
@@ -15,11 +13,11 @@ print(datos.hex())  # 78563412
 print(struct.unpack("<I", datos)[0] == valor)  # True
 ```
 
-El prefijo `<` fija little-endian y `I` representa un entero sin signo de cuatro bytes en ese formato. Es preferible indicar el orden de forma explícita cuando se trabaja con datos de una arquitectura concreta.
+`<` fija little-endian e `I` representa un entero sin signo de cuatro bytes en ese formato. Indica el orden de forma explícita cuando el dato pertenece a otra arquitectura.
 
-El entero del ejemplo es arbitrario y no corresponde a una dirección del laboratorio. La [documentación de struct](https://docs.python.org/3/library/struct.html) explica los formatos y tamaños.
+`0x12345678` es un valor de ejemplo, no una dirección del laboratorio. Los formatos están en la [documentación de struct](https://docs.python.org/3/library/struct.html).
 
-## Separar texto hexadecimal y bytes
+## Texto hexadecimal y bytes
 
 ```python
 texto = "41 42 43"
@@ -27,9 +25,9 @@ datos = bytes.fromhex(texto)
 print(len(texto), len(datos))  # 8 caracteres, 3 bytes
 ```
 
-La longitud del texto y la del dato representado son distintas. `bytes.fromhex()` interpreta los pares hexadecimales; aplicar `.encode()` al texto produciría los caracteres de esa representación.
+`bytes.fromhex()` interpreta los pares hexadecimales. `.encode()` sobre ese texto produciría los caracteres de la representación, no los tres bytes indicados.
 
-## Detectar un truncamiento
+## Truncamientos
 
 ```python
 referencia = bytes.fromhex("01 02 03 04")
@@ -37,29 +35,25 @@ observado = bytes.fromhex("01 02 03")
 print(referencia == observado)  # False
 ```
 
-Si se comparan pares con `zip()`, hay que revisar también las longitudes: la iteración termina cuando se acaba el archivo más corto. La utilidad incluida comprueba el prefijo común y después el tamaño.
+Al comparar pares con `zip()`, revisa también las longitudes. La iteración termina cuando se agota el más corto y puede ocultar un truncamiento.
 
-El primer índice de diferencia se cuenta desde cero. Cuando falta el último byte, coincide con la longitud del prefijo común.
+La utilidad incluida comprueba el prefijo común y después el tamaño. El índice de diferencia empieza en cero; si falta un byte al final, coincide con la longitud del prefijo común.
 
-## Calcular un hash
+## SHA-256 de un archivo
 
 ```console
 python3 herramientas/auditoria_local.py hash evidencias/capturas/E02-offset-246.png
 ```
 
-La lectura por bloques permite calcular SHA-256 sin cargar el archivo completo en memoria. El resultado sirve para comprobar integridad e identificar una copia. La procedencia y el contexto de la evidencia deben registrarse aparte.
+El archivo se lee por bloques. El resultado identifica su contenido, mientras que el origen y el contexto se guardan en el registro de la prueba.
 
 ## Códigos de salida
 
 | Orden | Resultado |
 | :--- | :--- |
 | `demo` | 0 si termina correctamente |
-| `hash ARCHIVO` | 0 si puede leer y calcular el hash |
+| `hash ARCHIVO` | 0 si lee y calcula el hash |
 | `compare REFERENCIA OBSERVADO` | 0 si coinciden; 1 si hay diferencia o truncamiento |
 | Error de uso, lectura, formato o tamaño | 2 |
 
-`compare` acepta archivos con pares hexadecimales y espacios o saltos de línea. El límite es 1 MiB de texto por archivo. Los prefijos `0x`, las direcciones, los comentarios y las columnas ASCII de un dump deben limpiarse antes, conservando el original para revisar la conversión.
-
-## Uso dentro del análisis
-
-Automatizar hashes, longitudes y comparaciones evita errores mecánicos. La utilidad no sabe si dos archivos pertenecen a la misma sesión ni si se eligió bien la dirección de memoria. Esos datos forman parte del registro del analista.
+`compare` acepta pares hexadecimales separados por espacios o saltos de línea, hasta 1 MiB de texto por archivo. No admite direcciones, prefijos `0x`, comentarios ni columnas ASCII. Si se parte de un dump, limpia una copia de trabajo y conserva el original.

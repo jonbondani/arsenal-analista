@@ -2,52 +2,50 @@
 
 [Volver al índice](../README.md)
 
-## Preparar el análisis
+## Preparar el entorno
 
-El primer paso es definir qué se va a comprobar. En este caso se revisa cómo se relaciona la entrada con el estado del proceso y qué muestran las capturas.
+Para seguir las capturas no hace falta ejecutar FreeFloat. Si se va a trabajar con el servidor, se necesita un laboratorio autorizado, una VM aislada y un snapshot al que volver. Comprueba la configuración de red y evita que el servicio quede accesible desde Internet.
 
-Si trabajas sobre las capturas incluidas, puedes seguir toda la revisión sin ejecutar el servicio. Para una sesión dinámica hace falta un entorno autorizado, una VM desechable y un snapshot al que volver. La red debe estar aislada, por ejemplo mediante una red interna o host-only, sin exponer el servidor a Internet. La configuración real de la red debe quedar anotada junto al resto del entorno.
+En el laboratorio original se utiliza Windows 11 sobre VirtualBox. La documentación cita IDA Free 9.4 para Windows x64 y carga el ejecutable como PE 80386. Las capturas muestran EIP y ESP, correspondientes al proceso x86.
 
-## Organizar los archivos
+La arquitectura de Windows no determina la del programa. Un sistema x64 puede ejecutar un proceso de 32 bits. El depurador y la lectura de registros deben corresponder al proceso analizado.
 
-En la [ficha de sesión](../plantillas/sesion.md) se anotan la fecha, el objetivo, la muestra, el hash, la arquitectura, las herramientas y el snapshot. Estos datos se guardan al empezar para no tener que reconstruirlos después.
+También hay dos entornos Python distintos: el de los scripts externos y el que carga mona dentro del depurador. Sus versiones y dependencias se anotan por separado.
 
-En el laboratorio original se describe FreeFloat FTP Server 1.0 en Windows 11 sobre VirtualBox. La guía cita IDA Free 9.4 para Windows x64 y la metodología identifica el ejecutable como PE 80386. Faltan el hash de esa muestra, la build de Windows y las versiones completas de Immunity y mona. Son datos necesarios para repetir el análisis con precisión.
+## Identificar los archivos
 
-El sistema operativo y el proceso no tienen por qué compartir arquitectura. Windows x64 puede ejecutar una aplicación x86. En las capturas se trabaja con EIP y ESP, así que la interpretación de esos registros corresponde a un proceso de 32 bits.
+Guarda el origen y el SHA-256 del ejecutable, la build del sistema, el snapshot y las versiones de las herramientas. En la [ficha de sesión](../plantillas/sesion.md) hay campos para estos datos.
 
-También hay que separar el Python utilizado para los scripts externos del intérprete que carga el plugin dentro del depurador. Actualizar uno no garantiza la compatibilidad del otro.
+El nombre `FTPServer.exe` y la versión comercial no bastan para identificar una copia concreta. Para repetir el laboratorio original faltan, entre otros datos, el hash de esa muestra y las versiones completas de Immunity y mona.
 
-## Repartir el trabajo entre herramientas
+Separa los archivos de cada sesión: entrada utilizada, patrón, tabla de referencia, capturas y resultados. Si cambia el binario, el comando, el prefijo o la configuración, registra el cambio antes de continuar.
 
-**IDA Free** sirve para localizar cadenas, seguir referencias y estudiar los bloques que procesan una entrada. Se anotan las funciones y direcciones que después habrá que revisar en el depurador.
+## Empezar en IDA
 
-**Immunity Debugger** muestra los registros, la pila y la memoria del proceso detenido. Para conservar ese resultado hacen falta el contexto de la sesión, el hilo y la causa de la detención.
+Localiza las cadenas del protocolo y abre sus referencias. Sigue la función que las utiliza y revisa las condiciones que llevan a cada operación de copia.
 
-**mona** automatiza la consulta de patrones y la comparación de memoria. Sus resultados dependen de que la referencia, la longitud y la dirección inicial sean las correctas.
+Anota funciones, direcciones, origen de los datos y destino. Si el pseudocódigo sugiere un tipo o tamaño que afecta a la explicación, compruébalo en ensamblador y en los llamadores.
 
-**Python** se utiliza para convertir enteros a bytes, comparar datos y calcular hashes de los archivos.
+En el caso de FreeFloat se observa una copia en la rama de `USER`. Para relacionarla con una prueba de `NOOP` hay que seguir esa otra ruta. El [caso práctico](03-caso-practico.md) explica la diferencia.
 
-## Revisar el estado del proceso
+## Continuar en el depurador
 
-Un timeout de red es un síntoma. El depurador permite comprobar si el proceso está pausado, si se ha producido una excepción o si el servicio sigue activo. Conviene guardar el contexto antes de continuar, porque al reanudar la ejecución puede perderse el estado que se estaba examinando.
+Identifica proceso, hilo y causa de la detención. Guarda los registros y la memoria antes de reanudar, porque el estado puede cambiar al continuar.
 
-Al documentar una detención, conserva el proceso, el hilo, el tipo de excepción, los registros relevantes y la instrucción señalada. Si se compara memoria, añade la dirección inicial y la longitud de la referencia.
+Un timeout no basta para confirmar un crash. El proceso puede estar pausado, el servicio puede haberse detenido o puede haber un problema de red. Revisa el contexto del depurador para distinguirlo.
 
-## Mantener separadas las sesiones
+Si EIP contiene un marcador, relaciónalo con la entrada de esa sesión. Para una comparación de memoria, localiza el primer byte de la referencia y registra la dirección y la longitud. ESP puede apuntar dentro de la secuencia.
 
-Un cambio de binario, prefijo, comando FTP, sistema o snapshot puede cambiar el resultado. Abre una sesión nueva o deja el cambio claramente registrado. Un offset o una dirección de otra ejecución pueden orientar la revisión, pero necesitan comprobarse de nuevo.
+## Pasar ubicaciones entre herramientas
 
-Al cruzar ubicaciones de IDA con el depurador, distingue la dirección virtual, la base del módulo y el RVA. El offset de archivo es otra medida y no se puede intercambiar directamente con ellas.
+IDA y el depurador pueden mostrar bases distintas. Guarda el módulo, su base y el RVA de la ubicación que se está siguiendo. El RVA es la posición respecto a la base del módulo; no es lo mismo que un offset dentro del archivo.
 
-## Guardar las evidencias
+Al cambiar de sesión, comprueba de nuevo las direcciones. Una dirección válida en una ejecución puede variar por la carga de módulos, la versión o las mitigaciones.
 
-Conserva las capturas originales y sus hashes. Si una copia pública necesita ocultar información, guarda el original aparte y registra la edición realizada. Mantén visibles los datos necesarios para entender la prueba.
+## Guardar los resultados
 
-Cada captura debe acompañarse de una explicación breve: operación realizada, resultado visible y alcance. En una comparación de memoria interesa saber qué referencia se utilizó y qué bytes se excluyeron. En un registro con un marcador interesa poder relacionarlo con la entrada de esa misma sesión.
+Cada captura debe quedar relacionada con la acción anterior y con los archivos utilizados. En una comparación interesa conservar el hash de la referencia, sus exclusiones, la dirección inicial y la salida de mona.
 
-## Cerrar el trabajo
+Mantén los originales. Si hay que ocultar información en una copia, guarda la versión sin editar aparte y anota el cambio.
 
-El [informe](../plantillas/informe.md) recoge los resultados y las limitaciones. Las comprobaciones que falten deben describirse con suficiente detalle para poder retomarlas. Por ejemplo, para estudiar la estabilidad de una dirección hay que registrar módulo, base y RVA en sesiones independientes y comparar los resultados tras reiniciar.
-
-Antes de compartir los resultados, revisa el [checklist](08-checklist.md) y comprueba que cada conclusión tiene su captura o archivo de referencia.
+Al cerrar, recoge los resultados en el [informe](../plantillas/informe.md) y señala las comprobaciones que falten. Por ejemplo, estudiar la estabilidad de una dirección requiere comparar módulo, base y RVA en sesiones independientes, también después de reiniciar.

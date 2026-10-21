@@ -2,8 +2,7 @@
   "repositorio": "jonbondani/CVE-2025-5548",
   "commit": "6c302ee05599ce34dae0892f8678bed802879dab",
   "fecha_revision": "2026-10-21",
-  "metodo": "Comparacion de la identidad Git blob SHA-1 local con el sha devuelto por GitHub fetch_file para el commit fijado; SHA-256 adicional para integridad local",
-  "limite": "No acredita autenticidad experimental, fecha de captura ni repetibilidad",
+  "metodo": "Comparación de la identidad de blob Git de cada copia con la del archivo en el commit de referencia. SHA-256 calculado para identificar el contenido local.",
   "capturas": [
     {
       "id": "E01",
@@ -15,7 +14,7 @@
       "git_blob_sha1": "a1ba198bcfb98c2a495945bfb5e466b45cfde71d",
       "coincide_con_blob_remoto": true,
       "transformacion": "renombrado, sin editar bytes",
-      "tipo": "captura historica; no reproduccion nueva"
+      "tipo": "captura del laboratorio original"
     },
     {
       "id": "E02",
@@ -27,7 +26,7 @@
       "git_blob_sha1": "7407b27844e04d4f85e98e30d0162a6dc03c82d2",
       "coincide_con_blob_remoto": true,
       "transformacion": "renombrado, sin editar bytes",
-      "tipo": "captura historica; no reproduccion nueva"
+      "tipo": "captura del laboratorio original"
     },
     {
       "id": "E03",
@@ -39,7 +38,7 @@
       "git_blob_sha1": "bd7eb2e18ecf30ba751985b4f15a552fbde7de2c",
       "coincide_con_blob_remoto": true,
       "transformacion": "renombrado, sin editar bytes",
-      "tipo": "captura historica; no reproduccion nueva"
+      "tipo": "captura del laboratorio original"
     },
     {
       "id": "E04",
@@ -51,7 +50,7 @@
       "git_blob_sha1": "6b463a33590d067b80c2d7594e3ca7f07d93fa2c",
       "coincide_con_blob_remoto": true,
       "transformacion": "renombrado, sin editar bytes",
-      "tipo": "captura historica; no reproduccion nueva"
+      "tipo": "captura del laboratorio original"
     },
     {
       "id": "E05",
@@ -63,7 +62,7 @@
       "git_blob_sha1": "5b1f908c2ceff5d2101dc98d8460b723b82cf2cd",
       "coincide_con_blob_remoto": true,
       "transformacion": "renombrado, sin editar bytes",
-      "tipo": "captura historica; no reproduccion nueva"
+      "tipo": "captura del laboratorio original"
     },
     {
       "id": "E06",
@@ -75,7 +74,7 @@
       "git_blob_sha1": "8406bc626c8e3be8a3e1e159a5e9a84232621e6e",
       "coincide_con_blob_remoto": true,
       "transformacion": "renombrado, sin editar bytes",
-      "tipo": "captura historica; no reproduccion nueva"
+      "tipo": "captura del laboratorio original"
     }
   ],
   "documentos_fuente": [
